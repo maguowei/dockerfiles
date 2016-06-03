@@ -4,7 +4,7 @@ MAINTAINER Guowei Ma <imaguowei@gmail.com>
 LABEL name="base"
 LABEL version="16.04"
 
-RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
+#RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
 
 RUN locale-gen zh_CN.UTF-8
 RUN locale-gen en_US.UTF-8
