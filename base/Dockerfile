@@ -26,7 +26,8 @@ RUN apt-get update && apt-get install -y \
     vim \
     zsh \
     python3.5-dev \
-    python3-pip
+    python3-pip \
+&& rm -rf /var/lib/apt/lists/*
 
 RUN ln -sf /usr/bin/python3.5 /usr/bin/python3
 RUN pip3 install -U pip
