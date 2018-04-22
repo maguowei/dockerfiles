@@ -1,8 +1,8 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 MAINTAINER Guowei Ma <imaguowei@gmail.com>
 
 LABEL name="base"
-LABEL version="16.04"
+LABEL version="18.04"
 
 #RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
 
@@ -26,11 +26,10 @@ RUN apt-get update && apt-get install -y \
     curl \
     vim \
     zsh \
-    python3.5-dev \
+    python3-dev \
     python3-pip \
 && rm -rf /var/lib/apt/lists/*
 
-RUN ln -sf /usr/bin/python3.5 /usr/bin/python3
 RUN pip3 install -U pip
 
 RUN git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh \
