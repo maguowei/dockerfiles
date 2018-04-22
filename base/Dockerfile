@@ -1,12 +1,12 @@
 FROM ubuntu:18.04
-MAINTAINER Guowei Ma <imaguowei@gmail.com>
-
+LABEL maintainer="imaguowei@gmail.com"
 LABEL name="base"
 LABEL version="18.04"
 
 #RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y \
+    apt-utils \
     locales
 
 RUN locale-gen zh_CN.UTF-8
@@ -16,11 +16,14 @@ ENV LANG en_US.UTF-8
 ENV LC_CTYPE zh_CN.UTF-8
 
 ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y tzdata && \
+    rm /etc/localtime && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata && \
+    apt-get clean
 
 RUN apt-get update && apt-get install -y \
-    apt-utils \
-    build-essential \
     git \
     wget \
     curl \
