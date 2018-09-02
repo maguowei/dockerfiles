@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 LABEL maintainer="imaguowei@gmail.com"
-LABEL name="base"
+LABEL name="maguowei/base"
 LABEL version="18.04"
 
 #RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list

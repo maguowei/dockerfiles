@@ -1,4 +1,7 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
+LABEL maintainer="imaguowei@gmail.com"
+LABEL name="maguowei/shadowsocks"
+LABEL version="18.04"
 
 RUN apt-get update && \
     apt-get install -y python3-pip
