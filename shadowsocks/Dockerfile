@@ -6,7 +6,7 @@ LABEL version="18.04"
 RUN apt-get update && \
     apt-get install -y python3-pip
 
-RUN pip3 install shadowsocks
+RUN pip3 install git+https://github.com/shadowsocks/shadowsocks.git@master
 
 EXPOSE 1984
 
