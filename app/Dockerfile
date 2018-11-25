@@ -17,8 +17,7 @@ VOLUME ${APP_LOG_PATH}
 
 USER app
 ONBUILD COPY Pipfile* ./
-ONBUILD RUN pip3 install --user -i https://mirrors.aliyun.com/pypi/simple/ pipenv \
-    && pipenv install --pypi-mirror https://mirrors.aliyun.com/pypi/simple/
+ONBUILD RUN pipenv install --pypi-mirror https://mirrors.aliyun.com/pypi/simple/
 ONBUILD COPY --chown=app:app . ${APP_SOURCE_CODE_PATH}
 ONBUILD RUN bash -l -c 'echo export PATH="$(pipenv --venv)/bin:${PATH}" >> ~/.bashrc'
 EXPOSE 8080
