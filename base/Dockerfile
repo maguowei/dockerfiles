@@ -26,6 +26,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     git \
     wget \
     curl \
+    iputils-ping \
+    net-tools \
     vim \
     zsh \
     build-essential \
