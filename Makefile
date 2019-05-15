@@ -3,3 +3,6 @@ build:
 
 build-app:
 	docker build -t maguowei/python-app:onbuild app
+
+build-python:
+	docker build -t maguowei/python python
