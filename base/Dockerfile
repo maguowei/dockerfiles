@@ -12,6 +12,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
 RUN locale-gen zh_CN.UTF-8 && locale-gen en_US.UTF-8
 
 ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
 ENV LC_CTYPE zh_CN.UTF-8
 
 ENV TZ=Asia/Shanghai
@@ -35,8 +36,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     python3-pip \
 && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install -U pip
-RUN pip3 install pipenv
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# pypi mirrors
+ENV PIP_INDEX_URL https://mirrors.aliyun.com/pypi/simple/
+ENV PIPENV_PYPI_MIRROR https://mirrors.aliyun.com/pypi/simple/
+
+RUN pip3 install -U pip && pip install pipenv
 
 RUN git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh \
       && cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc \
