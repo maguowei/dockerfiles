@@ -3,7 +3,7 @@ LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/base"
 LABEL version="18.04"
 
-#RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
+# RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     apt-utils \
@@ -38,7 +38,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
 
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
-# pypi mirrors
 # ENV PIP_INDEX_URL https://mirrors.aliyun.com/pypi/simple/
 # ENV PIPENV_PYPI_MIRROR https://mirrors.aliyun.com/pypi/simple/
 

@@ -15,6 +15,7 @@ LABEL version="3.7"
 #     > /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    apt-utils \
     locales \
     && rm -rf /var/lib/apt/lists/*
 
@@ -24,7 +25,6 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 ENV LC_CTYPE zh_CN.UTF-8
 
-# pypi mirrors
 # ENV PIP_INDEX_URL https://mirrors.aliyun.com/pypi/simple/
 # ENV PIPENV_PYPI_MIRROR https://mirrors.aliyun.com/pypi/simple/
 

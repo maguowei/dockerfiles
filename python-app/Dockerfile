@@ -1,4 +1,4 @@
-FROM maguowei/base:latest
+FROM maguowei/python:latest
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/python-app"
 LABEL version="1.0.0"
@@ -17,7 +17,7 @@ VOLUME ${APP_LOG_PATH}
 
 USER app
 ONBUILD COPY Pipfile* ./
-ONBUILD RUN pipenv install --pypi-mirror https://mirrors.aliyun.com/pypi/simple/
+ONBUILD RUN pipenv install
 ONBUILD COPY --chown=app:app . ${APP_SOURCE_CODE_PATH}
 ONBUILD RUN bash -l -c 'echo export PATH="$(pipenv --venv)/bin:${PATH}" >> ~/.bashrc'
 EXPOSE 8080
