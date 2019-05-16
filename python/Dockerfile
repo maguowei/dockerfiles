@@ -3,16 +3,16 @@ LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/python"
 LABEL version="3.7"
 
-RUN echo \
-    deb http://mirrors.aliyun.com/debian/ stretch main non-free contrib \
-    deb-src http://mirrors.aliyun.com/debian/ stretch main non-free contrib \
-    deb http://mirrors.aliyun.com/debian-security stretch/updates main \
-    deb-src http://mirrors.aliyun.com/debian-security stretch/updates main \
-    deb http://mirrors.aliyun.com/debian/ stretch-updates main non-free contrib \
-    deb-src http://mirrors.aliyun.com/debian/ stretch-updates main non-free contrib \
-    deb http://mirrors.aliyun.com/debian/ stretch-backports main non-free contrib \
-    deb-src http://mirrors.aliyun.com/debian/ stretch-backports main non-free contrib \
-    > /etc/apt/sources.list
+# RUN echo \
+#     deb http://mirrors.aliyun.com/debian/ stretch main non-free contrib \
+#     deb-src http://mirrors.aliyun.com/debian/ stretch main non-free contrib \
+#     deb http://mirrors.aliyun.com/debian-security stretch/updates main \
+#     deb-src http://mirrors.aliyun.com/debian-security stretch/updates main \
+#     deb http://mirrors.aliyun.com/debian/ stretch-updates main non-free contrib \
+#     deb-src http://mirrors.aliyun.com/debian/ stretch-updates main non-free contrib \
+#     deb http://mirrors.aliyun.com/debian/ stretch-backports main non-free contrib \
+#     deb-src http://mirrors.aliyun.com/debian/ stretch-backports main non-free contrib \
+#     > /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     locales \
@@ -25,8 +25,8 @@ ENV LANGUAGE en_US.UTF-8
 ENV LC_CTYPE zh_CN.UTF-8
 
 # pypi mirrors
-ENV PIP_INDEX_URL https://mirrors.aliyun.com/pypi/simple/
-ENV PIPENV_PYPI_MIRROR https://mirrors.aliyun.com/pypi/simple/
+# ENV PIP_INDEX_URL https://mirrors.aliyun.com/pypi/simple/
+# ENV PIPENV_PYPI_MIRROR https://mirrors.aliyun.com/pypi/simple/
 
 ENV TZ=Asia/Shanghai
 RUN echo $TZ > /etc/timezone && \
