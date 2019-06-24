@@ -6,7 +6,7 @@
 # build
 docker build -t maguowei/shadowsocks .
 # run
-docker run -d --restart always -p 1984:1984 maguowei/shadowsocks -p 1984 -k password -m aes-256-cfb --fast-open --workers 4
+docker run -d --restart always -p 1984:1984 maguowei/shadowsocks -p 1984 -k ${password} -m aes-256-cfb --fast-open --workers 4
 
 # use Kubernetes
 kubectl run shadowsocks --generator=run-pod/v1 --image=maguowei/shadowsocks --restart=Always --command -- ssserver -p 1984 -k ${password} -m aes-256-cfb --fast-open --workers 4
