@@ -43,8 +43,6 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 
 RUN pip3 install -U pip && pip install pipenv
 
-RUN git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh \
-      && cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc \
-      && chsh -s /bin/zsh
+RUN wget -O- https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | zsh || true
 
-CMD zsh
+CMD ["zsh"]
