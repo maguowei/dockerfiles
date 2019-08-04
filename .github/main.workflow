@@ -40,7 +40,7 @@ action "Docker push python" {
 
 action "Docker build python-app" {
   uses = "actions/docker/cli@master"
-  needs = ["Docker login"]
+  needs = ["Docker build python"]
   args = "build -t maguowei/python-app:onbuild python-app"
 }
 
