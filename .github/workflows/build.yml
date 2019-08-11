@@ -1,0 +1,27 @@
+on: push
+name: Build
+jobs:
+  build:
+    name: build and push
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@master
+    - name: docker login
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      run: echo "$DOCKER_PASSWORD" | docker login $DOCKER_REGISTRY_URL -u $DOCKER_USERNAME --password-stdin
+    
+    - run: docker build -t maguowei/base base
+    - run: docker build -t maguowei/python python
+    - run: docker build -t maguowei/python-app:onbuild python-app
+    - run: docker build -t maguowei/shadowsocks shadowsocks
+    - run: docker build -t maguowei/surge-snell surge-snell
+    
+    - run: docker push maguowei/base
+    - run: docker push maguowei/python
+    - run: docker push maguowei/python-app:onbuild
+    - run: docker push maguowei/shadowsocks
+    - run: docker push maguowei/surge-snell
+
+    - run: docker logout
