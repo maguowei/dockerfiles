@@ -3,17 +3,6 @@ LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/python"
 LABEL version="3.7"
 
-# RUN echo \
-#     deb http://mirrors.aliyun.com/debian/ stretch main non-free contrib \
-#     deb-src http://mirrors.aliyun.com/debian/ stretch main non-free contrib \
-#     deb http://mirrors.aliyun.com/debian-security stretch/updates main \
-#     deb-src http://mirrors.aliyun.com/debian-security stretch/updates main \
-#     deb http://mirrors.aliyun.com/debian/ stretch-updates main non-free contrib \
-#     deb-src http://mirrors.aliyun.com/debian/ stretch-updates main non-free contrib \
-#     deb http://mirrors.aliyun.com/debian/ stretch-backports main non-free contrib \
-#     deb-src http://mirrors.aliyun.com/debian/ stretch-backports main non-free contrib \
-#     > /etc/apt/sources.list
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-utils \
     locales \
