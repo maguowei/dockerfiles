@@ -3,7 +3,7 @@ LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/surge-snell"
 LABEL version="18.04"
 
-ENV SNELL_VERSION 1.1.0
+ENV SNELL_VERSION 1.1.1
 # RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     wget \
