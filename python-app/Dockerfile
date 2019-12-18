@@ -16,9 +16,9 @@ WORKDIR ${APP_SOURCE_CODE_PATH}
 VOLUME ${APP_LOG_PATH}
 
 USER app
+COPY entrypoint.sh ./
 ONBUILD COPY Pipfile* ./
 ONBUILD RUN pipenv install
 ONBUILD COPY --chown=app:app . ${APP_SOURCE_CODE_PATH}
-ONBUILD RUN bash -l -c 'echo export PATH="$(pipenv --venv)/bin:${PATH}" >> ~/.bashrc'
+ONBUILD ENTRYPOINT ["entrypoint.sh"]
 EXPOSE 8080
-# CMD manage.py runserver 0.0.0.0:8080
