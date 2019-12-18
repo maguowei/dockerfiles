@@ -16,7 +16,7 @@ WORKDIR ${APP_SOURCE_CODE_PATH}
 VOLUME ${APP_LOG_PATH}
 
 USER app
-COPY entrypoint.sh ./
+COPY entrypoint.sh /usr/local/bin
 ONBUILD COPY Pipfile* ./
 ONBUILD RUN pipenv install
 ONBUILD COPY --chown=app:app . ${APP_SOURCE_CODE_PATH}
