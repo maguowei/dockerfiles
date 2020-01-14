@@ -20,7 +20,7 @@ kubectl expose pod shadowsocks --port=1984 --type LoadBalancer
 
 ```bash
 export server_ip=xxxx; password=xxxx
-docker run --name=sslocal -d --restart always -p 1080:1080 --entrypoint=sslocal maguowei/shadowsocks -s ${server_ip} -p 1984 -b 127.0.0.1 -l 1080 -k ${password} -m aes-256-cfb --fast-open
+docker run --name=sslocal -d --restart always -p 1080:1080 --entrypoint=sslocal maguowei/shadowsocks -s ${server_ip} -p 1984 -b 0.0.0.0 -l 1080 -k ${password} -m aes-256-cfb --fast-open
 ```
 
 ## Ref
