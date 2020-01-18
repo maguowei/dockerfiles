@@ -9,3 +9,6 @@ build-python-app:
 
 build-surge-snell:
 	docker build -t maguowei/surge-snell surge-snell
+
+build-v2ray:
+	docker build -t maguowei/v2ray v2ray

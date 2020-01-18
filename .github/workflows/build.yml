@@ -15,13 +15,14 @@ jobs:
     - run: docker build -t maguowei/base base
     - run: docker build -t maguowei/python python
     - run: docker build -t maguowei/python-app:onbuild python-app
-    - run: docker build -t maguowei/shadowsocks shadowsocks
     - run: docker build -t maguowei/surge-snell surge-snell
+    - run: docker build -t maguowei/surge-snell v2ray
+
     
     - run: docker push maguowei/base
     - run: docker push maguowei/python
     - run: docker push maguowei/python-app:onbuild
-    - run: docker push maguowei/shadowsocks
     - run: docker push maguowei/surge-snell
+    - run: docker push maguowei/v2ray
 
     - run: docker logout
