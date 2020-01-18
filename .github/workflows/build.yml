@@ -16,7 +16,7 @@ jobs:
     - run: docker build -t maguowei/python python
     - run: docker build -t maguowei/python-app:onbuild python-app
     - run: docker build -t maguowei/surge-snell surge-snell
-    - run: docker build -t maguowei/surge-snell v2ray
+    - run: docker build -t maguowei/v2ray v2ray
 
     
     - run: docker push maguowei/base
