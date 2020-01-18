@@ -1,0 +1,29 @@
+{
+    "inbounds": [{
+      "port": 1080,
+      "listen": "0.0.0.0",
+      "protocol": "http"
+    }],
+    "outbounds": [{
+      "protocol": "vmess",
+      "settings": {
+        "vnext": [{
+          "address": "xxx.xxx.xxx.xxx",
+          "port": 1984,
+          "users": [{ "id": "068c275-54ed-4d7b-8747-6efb8fd616b8" }]
+        }]
+      }
+    },{
+      "protocol": "freedom",
+      "tag": "direct",
+      "settings": {}
+    }],
+    "routing": {
+      "domainStrategy": "IPOnDemand",
+      "rules": [{
+        "type": "field",
+        "ip": ["geoip:private"],
+        "outboundTag": "direct"
+      }]
+    }
+  }
