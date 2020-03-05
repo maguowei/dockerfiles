@@ -24,6 +24,7 @@ RUN echo $TZ > /etc/timezone && \
     apt-get clean
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    ca-certificates \
     git \
     wget \
     curl \
@@ -33,6 +34,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     zsh \
     build-essential \
     python3-dev \
+    python3-setuptools \
     python3-pip \
 && rm -rf /var/lib/apt/lists/*
 
@@ -42,7 +44,6 @@ ENV PIP_INDEX_URL https://mirrors.aliyun.com/pypi/simple/
 ENV PIPENV_PYPI_MIRROR https://mirrors.aliyun.com/pypi/simple/
 
 RUN pip3 install -U pip && pip install pipenv
-
 RUN wget -O- https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | zsh || true
 
 CMD ["zsh"]
