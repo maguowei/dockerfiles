@@ -1,7 +1,7 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/base"
-LABEL version="18.04"
+LABEL version="20.04"
 
 RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
 
