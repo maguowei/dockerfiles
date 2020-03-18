@@ -12,3 +12,6 @@ build-surge-snell:
 
 build-v2ray:
 	docker build -t maguowei/v2ray v2ray
+
+build-frp:
+	docker build -t maguowei/frp frp
