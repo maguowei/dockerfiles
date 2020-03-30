@@ -43,7 +43,7 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 ENV PIP_INDEX_URL https://mirrors.aliyun.com/pypi/simple/
 ENV PIPENV_PYPI_MIRROR https://mirrors.aliyun.com/pypi/simple/
 
-RUN pip3 install -U pip && pip install pipenv
+RUN python -m pip install -U pip wheel && python -m pip install pipenv
 RUN wget -O- https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | zsh || true
 
 CMD ["zsh"]
