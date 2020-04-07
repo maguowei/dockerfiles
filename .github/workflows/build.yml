@@ -13,6 +13,8 @@ jobs:
       run: echo "$DOCKER_PASSWORD" | docker login $DOCKER_REGISTRY_URL -u $DOCKER_USERNAME --password-stdin
     
     - run: docker build -t maguowei/base base
+    - run: docker build -t maguowei/go-app:onbuild go/app
+    - run: docker build -t maguowei/go-builder:onbuild go/builder
     - run: docker build -t maguowei/python python
     - run: docker build -t maguowei/python-app:onbuild python-app
     - run: docker build -t maguowei/surge-snell surge-snell
@@ -20,6 +22,8 @@ jobs:
     - run: docker build -t maguowei/frp frp
 
     - run: docker push maguowei/base
+    - run: docker push maguowei/go-app:onbuild
+    - run: docker push maguowei/go-builder:onbuild
     - run: docker push maguowei/python
     - run: docker push maguowei/python-app:onbuild
     - run: docker push maguowei/surge-snell

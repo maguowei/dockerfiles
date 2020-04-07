@@ -1,6 +1,12 @@
 build:
 	docker build -t maguowei/base base
 
+build-go-app:
+	docker build -t maguowei/go-app:onbuild go/app
+
+build-go-builder:
+	docker build -t maguowei/go-builder:onbuild go/builder
+
 build-python:
 	docker build -t maguowei/python python
 
