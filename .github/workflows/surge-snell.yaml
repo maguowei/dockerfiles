@@ -1,0 +1,22 @@
+name: surge-snell
+on: 
+  push:
+    paths:
+    - 'surge-snell/*'
+jobs:
+  App:
+    name: Build surge-snell
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Build and push image
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: maguowei/surge-snell
+          path: surge-snell
+          tag_with_ref: true
+          tag_with_sha: true
+          add_git_labels: true
