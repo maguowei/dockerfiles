@@ -18,8 +18,8 @@ jobs:
           repository: maguowei/go-app
           tags: onbuild
           path: go/app
-          # tag_with_ref: true
-          # tag_with_sha: true
+          tag_with_ref: true
+          tag_with_sha: true
           add_git_labels: true
   Builder:
     name: Build go-builder
@@ -35,6 +35,6 @@ jobs:
           repository: maguowei/go-builder
           tags: onbuild
           path: go/builder
-          # tag_with_ref: true
-          # tag_with_sha: true
+          tag_with_ref: true
+          tag_with_sha: true
           add_git_labels: true
