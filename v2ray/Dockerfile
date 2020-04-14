@@ -14,7 +14,7 @@ LABEL maintainer="imaguowei@gmail.com"
 
 COPY --from=builder /usr/bin/v2ray  /usr/bin/v2ray
 COPY config.json /etc/v2ray/config.json
-
+# RUN sed -i "s/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g" /etc/apk/repositories
 RUN apk update && apk upgrade \
     && apk add --update tzdata \
     && apk --no-cache add ca-certificates \
@@ -27,5 +27,6 @@ RUN mkdir /var/log/v2ray/
 ENV PATH /usr/bin/v2ray:$PATH
 COPY config.json /etc/v2ray/config.json
 
+RUN sed -i "s/{uuid}/$(v2ctl uuid)/g" /etc/v2ray/config.json
 EXPOSE 1984
 CMD ["v2ray", "-config=/etc/v2ray/config.json"]
