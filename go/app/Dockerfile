@@ -1,8 +1,6 @@
 FROM alpine:3.11
 LABEL maintainer="imaguowei@gmail.com"
 
-ENV APP_NAME ${APP_NAME}
-ENV APP_ENV ${APP_ENV}
 ENV APP_PATH /opt/app
 ENV APP_LOG_PATH /data/app/log
 ENV PATH .:$PATH
@@ -21,8 +19,10 @@ VOLUME ${APP_LOG_PATH}
 USER app
 RUN echo "PS1=$" >> ~/.bashrc
 
-ONBUILD ARG APP_NAME
+ONBUILD ARG APP_NAME=go-app
+ONBUILD ARG APP_ENV=dev
 ONBUILD ENV APP_NAME ${APP_NAME}
+ONBUILD ENV APP_ENV ${APP_ENV}
 ONBUILD COPY --from=builder ${APP_PATH}/app ${APP_PATH}/app
 ONBUILD COPY --from=builder ${APP_PATH}/configs/${APP_NAME}/settings ${APP_PATH}/settings
 EXPOSE 8080
