@@ -21,6 +21,9 @@ VOLUME ${APP_LOG_PATH}
 USER app
 RUN echo "PS1=$" >> ~/.bashrc
 
+ONBUILD ARG APP_NAME
+ONBUILD ENV APP_NAME ${APP_NAME}
 ONBUILD COPY --from=builder ${APP_PATH}/app ${APP_PATH}/app
+ONBUILD COPY --from=builder ${APP_PATH}/configs/${APP_NAME}/settings ${APP_PATH}/settings
 EXPOSE 8080
 CMD ["app"]
