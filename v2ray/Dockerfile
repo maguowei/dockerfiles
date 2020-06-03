@@ -13,7 +13,6 @@ FROM alpine:latest
 LABEL maintainer="imaguowei@gmail.com"
 
 COPY --from=builder /usr/bin/v2ray  /usr/bin/v2ray
-COPY config.json /etc/v2ray/config.json
 # RUN sed -i "s/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g" /etc/apk/repositories
 RUN apk update && apk upgrade \
     && apk add --update tzdata \
