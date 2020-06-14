@@ -1,7 +1,7 @@
 FROM python:3.8-slim
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/python"
-LABEL version="Python 3.8"
+LABEL version="1.1.0"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-utils \
