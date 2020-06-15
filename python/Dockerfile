@@ -6,7 +6,6 @@ LABEL version="1.1.0"
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-utils \
     locales \
-    gcc \
     && rm -rf /var/lib/apt/lists/*
 
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && echo "zh_CN.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen
