@@ -21,3 +21,6 @@ build-v2ray:
 
 build-frp:
 	docker build -t maguowei/frp frp
+
+build-nginx:
+	docker build -t maguowei/nginx nginx
