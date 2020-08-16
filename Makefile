@@ -24,3 +24,6 @@ build-frp:
 
 build-nginx:
 	docker build -t maguowei/nginx nginx
+
+build-redis:
+	docker build -t maguowei/redis redis
