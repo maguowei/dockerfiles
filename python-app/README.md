@@ -2,7 +2,7 @@
 
 ## Usage
 
-```bash
+```Dockerfile
 FROM maguowei/python-app:onbuild
 LABEL maintainer="example@example.com"
 LABEL name="maguowei/example"
