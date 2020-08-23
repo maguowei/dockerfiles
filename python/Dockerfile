@@ -3,6 +3,9 @@ LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/python"
 LABEL version="1.1.0"
 
+# RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list
+# RUN sed -i "s/security.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-utils \
     locales \

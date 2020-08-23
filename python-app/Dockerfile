@@ -7,7 +7,7 @@ ENV APP_NAME ${APP_NAME}
 ENV APP_ENV ${APP_ENV}
 ENV APP_SOURCE_CODE_PATH /app
 ENV APP_LOG_PATH /data/app/log
-ENV PATH .:/home/app/.local/bin:$PATH
+ENV PATH .:$PATH
 
 RUN groupadd app && useradd -ms /bin/bash -g app app
 RUN mkdir -p ${APP_LOG_PATH} && chown -R app:app ${APP_LOG_PATH} \
@@ -15,10 +15,8 @@ RUN mkdir -p ${APP_LOG_PATH} && chown -R app:app ${APP_LOG_PATH} \
 WORKDIR ${APP_SOURCE_CODE_PATH}
 VOLUME ${APP_LOG_PATH}
 
-USER app
-COPY entrypoint.sh /usr/local/bin
 ONBUILD COPY Pipfile* ./
-ONBUILD RUN pipenv install
+ONBUILD RUN pipenv install --system
 ONBUILD COPY --chown=app:app . ${APP_SOURCE_CODE_PATH}
-ONBUILD ENTRYPOINT ["entrypoint.sh"]
+# USER app
 EXPOSE 8080
