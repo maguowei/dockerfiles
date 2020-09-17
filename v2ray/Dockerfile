@@ -1,4 +1,4 @@
-FROM ubuntu:18.04 as builder
+FROM ubuntu:20.04 as builder
 
 # RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \

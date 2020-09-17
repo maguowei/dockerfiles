@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/surge-snell"
 LABEL version="18.04"
