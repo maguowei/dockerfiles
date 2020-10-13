@@ -9,7 +9,7 @@ ipv6: false
 proxies:
   - name: jp
     type: vmess
-    server: xx.xxx.com
+    server: jp.xxx.com
     port: 1984
     uuid: 4b2e512f-abcd-abcd-abcd-06131fac6112
     alterId: 32
