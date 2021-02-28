@@ -1,5 +1,2 @@
 # Base Image
 
-```bash
-
-```
