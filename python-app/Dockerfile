@@ -15,8 +15,8 @@ RUN mkdir -p ${APP_LOG_PATH} && chown -R app:app ${APP_LOG_PATH} \
 WORKDIR ${APP_SOURCE_CODE_PATH}
 VOLUME ${APP_LOG_PATH}
 
-ONBUILD COPY Pipfile* ./
-ONBUILD RUN pipenv install --system
+ONBUILD COPY pyproject.toml poetry.* ./
+ONBUILD RUN poetry install
 ONBUILD COPY --chown=app:app . ${APP_SOURCE_CODE_PATH}
 # USER app
 EXPOSE 8080
