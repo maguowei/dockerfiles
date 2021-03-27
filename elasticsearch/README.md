@@ -5,5 +5,6 @@ $ docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.typ
 ```
 
 ## Plugins
-  - [elasticsearch-analysis-ik](https://github.com/medcl/elasticsearch-analysis-ik)
-  - [elasticsearch-analysis-pinyin](https://github.com/medcl/elasticsearch-analysis-pinyin)
+
+- [elasticsearch-analysis-ik](https://github.com/medcl/elasticsearch-analysis-ik)
+- [elasticsearch-analysis-pinyin](https://github.com/medcl/elasticsearch-analysis-pinyin)
