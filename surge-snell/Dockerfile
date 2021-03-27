@@ -1,9 +1,9 @@
 FROM ubuntu:20.04
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/surge-snell"
-LABEL version="18.04"
+LABEL version="20.04"
 
-ENV SNELL_VERSION v2.0.1
+ENV SNELL_VERSION v2.0.4
 # RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     wget \
