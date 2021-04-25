@@ -1,7 +1,7 @@
 FROM ubuntu:20.04
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/surge-snell"
-LABEL version="20.04"
+LABEL version="0.1.0"
 
 ENV SNELL_VERSION v2.0.4
 # RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list

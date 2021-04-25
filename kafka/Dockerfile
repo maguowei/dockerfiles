@@ -1,4 +1,6 @@
 FROM openjdk:11
+LABEL version="0.1.0"
+
 ARG kafka_version=2.8.0
 ARG scala_version=2.13
 

@@ -1,4 +1,6 @@
 FROM golang:1.16-alpine AS builder
+LABEL version="0.1.0"
+
 LABEL maintainer="imaguowei@gmail.com"
 
 ENV APP_PATH /opt/app

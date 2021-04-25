@@ -1,4 +1,6 @@
 FROM alpine
+LABEL version="0.1.0"
+
 ENV FRP_VERSION 0.34.1
 RUN sed -i "s/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g" /etc/apk/repositories
 RUN apk --update --no-cache add ca-certificates wget

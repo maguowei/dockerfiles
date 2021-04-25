@@ -1,7 +1,7 @@
 FROM python:3.9-slim
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/python"
-LABEL version="1.2.0"
+LABEL version="0.1.0"
 
 # RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list
 # RUN sed -i "s/security.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list

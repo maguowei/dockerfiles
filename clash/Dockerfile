@@ -1,4 +1,5 @@
 FROM node AS builder
+LABEL version="0.1.0"
 
 WORKDIR /ui
 

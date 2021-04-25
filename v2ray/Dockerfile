@@ -1,4 +1,6 @@
 FROM golang:alpine AS builder
+LABEL version="0.1.0"
+
 RUN apk update && apk add --no-cache git bash wget curl
 WORKDIR /go/src/v2ray.com/core
 RUN git clone --progress https://github.com/v2fly/v2ray-core.git . && \
