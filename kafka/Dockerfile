@@ -1,4 +1,6 @@
 FROM openjdk:11
+LABEL maintainer="imaguowei@gmail.com"
+LABEL name="maguowei/kafka"
 LABEL version="0.1.0"
 
 ARG kafka_version=2.8.0
@@ -15,8 +17,6 @@ RUN wget -O /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz https://mirrors.bfs
  && rm /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz \
  && ln -s /opt/kafka_${SCALA_VERSION}-${KAFKA_VERSION} ${KAFKA_HOME} \
  && rm -rf /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz
-
-VOLUME ["/kafka"]
 
 CMD ["sh", "-c", "kafka-storage.sh format -t $(kafka-storage.sh random-uuid) -c /opt/kafka/config/kraft/server.properties; kafka-server-start.sh /opt/kafka/config/kraft/server.properties"]
 
