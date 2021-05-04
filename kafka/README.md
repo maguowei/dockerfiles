@@ -2,7 +2,7 @@
 
 ```bash
 # run
-$ docker run --name kafka -it --rm -p 9092:9092 maguowei/kafka
+$ docker run --name kafka -d --restart always -p 9092:9092 maguowei/kafka
 ```
 
 ## Ref

@@ -4,7 +4,7 @@ TiUP in docker
 
 ```bash
 # run
-$ docker run --name tidb -it --rm -p 3379:2379 -p 3000:3000 -p 4000:4000 -p 9090:9090 maguowei/tidb 
+$ docker run --name tidb -d --restart always -p 3379:2379 -p 3000:3000 -p 4000:4000 -p 9090:9090 maguowei/tidb 
 ```
 
 ## Ref
