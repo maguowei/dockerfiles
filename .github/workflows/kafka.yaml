@@ -1,5 +1,6 @@
 name: kafka
-on: 
+on:
+  workflow_dispatch:
   push:
     paths:
     - 'kafka/*'

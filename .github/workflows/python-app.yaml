@@ -1,5 +1,6 @@
 name: python-app
-on: 
+on:
+  workflow_dispatch:
   push:
     paths:
     - 'python/*'

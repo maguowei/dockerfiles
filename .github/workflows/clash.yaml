@@ -1,5 +1,6 @@
 name: clash
-on: 
+on:
+  workflow_dispatch:
   push:
     paths:
     - 'clash/*'

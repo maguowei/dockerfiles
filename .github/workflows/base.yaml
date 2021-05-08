@@ -1,5 +1,6 @@
 name: base
-on: 
+on:
+  workflow_dispatch:
   push:
     paths:
     - 'base/*'
