@@ -1,4 +1,4 @@
-FROM alpine:3.13
+FROM alpine:3.14
 LABEL version="0.1.0"
 LABEL maintainer="imaguowei@gmail.com"
 
@@ -24,7 +24,7 @@ ONBUILD ARG APP_NAME
 ONBUILD ARG APP_ENV
 ONBUILD ENV APP_NAME ${APP_NAME}
 ONBUILD ENV APP_ENV ${APP_ENV}
-ONBUILD COPY --from=builder ${APP_PATH}/app ${APP_PATH}/app
+ONBUILD COPY --from=builder ${APP_PATH}/${APP_NAME}.app ${APP_PATH}/${APP_NAME}.app
 ONBUILD COPY --from=builder ${APP_PATH}/configs/${APP_NAME}/settings ${APP_PATH}/settings
 EXPOSE 8080
-CMD ["app"]
+CMD ["sh", "-c", "${APP_NAME}.app"]

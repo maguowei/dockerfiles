@@ -13,4 +13,4 @@ ONBUILD ARG APP_NAME
 ONBUILD COPY go.mod go.sum ./
 ONBUILD RUN go mod download
 ONBUILD COPY . ${APP_PATH}
-ONBUILD RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -ldflags "-X '${VERSION_IMPORT_PATH}.GitCommit=`git describe --always`' -X '${VERSION_IMPORT_PATH}.BuildTime=`date -u +'%Y-%m-%dT%H:%M:%SZ'`' -X '${VERSION_IMPORT_PATH}.GoVersion=`go version`'" -o app ${APP_PATH}/cmd/${APP_NAME}
+ONBUILD RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -ldflags "-X '${VERSION_IMPORT_PATH}.GitCommit=`git describe --always`' -X '${VERSION_IMPORT_PATH}.BuildTime=`date -u +'%Y-%m-%dT%H:%M:%SZ'`' -X '${VERSION_IMPORT_PATH}.GoVersion=`go version`'" -o ${APP_NAME}.app ${APP_PATH}/cmd/${APP_NAME}
