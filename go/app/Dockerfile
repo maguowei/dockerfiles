@@ -1,5 +1,5 @@
 FROM alpine:3.14
-LABEL version="0.1.0"
+LABEL version="0.2.0"
 LABEL maintainer="imaguowei@gmail.com"
 
 ENV APP_PATH /opt/app

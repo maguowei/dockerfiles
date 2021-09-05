@@ -1,5 +1,5 @@
-FROM golang:1.16-alpine AS builder
-LABEL version="0.1.0"
+FROM golang:1.17-alpine AS builder
+LABEL version="0.2.0"
 
 LABEL maintainer="imaguowei@gmail.com"
 
