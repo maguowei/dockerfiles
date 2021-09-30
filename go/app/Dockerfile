@@ -25,6 +25,6 @@ ONBUILD ARG APP_ENV
 ONBUILD ENV APP_NAME ${APP_NAME}
 ONBUILD ENV APP_ENV ${APP_ENV}
 ONBUILD COPY --from=builder ${APP_PATH}/${APP_NAME}.app ${APP_PATH}/${APP_NAME}.app
-ONBUILD COPY --from=builder ${APP_PATH}/configs/${APP_NAME}/settings ${APP_PATH}/settings
+ONBUILD COPY --from=builder ${APP_PATH}/configs/ ${APP_PATH}/configs
 EXPOSE 8080
 CMD ["sh", "-c", "${APP_NAME}.app"]
