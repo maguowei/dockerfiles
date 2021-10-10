@@ -1,8 +1,8 @@
-ARG TIDB_VERSION=5.0.1
+ARG TIDB_VERSION=5.2.1
 FROM ubuntu:20.04
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/tidb"
-LABEL version="0.1.0"
+LABEL version="0.2.0"
 
 ARG TIDB_VERSION
 ENV TIDB_VERSION=${TIDB_VERSION}
