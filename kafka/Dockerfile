@@ -3,7 +3,7 @@ LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/kafka"
 LABEL version="0.1.0"
 
-ARG kafka_version=2.8.0
+ARG kafka_version=3.0.0
 ARG scala_version=2.13
 
 ENV KAFKA_VERSION=$kafka_version \
@@ -12,7 +12,7 @@ ENV KAFKA_VERSION=$kafka_version \
 
 ENV PATH=${PATH}:${KAFKA_HOME}/bin
 
-RUN wget -O /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz https://mirrors.bfsu.edu.cn/apache/kafka/2.8.0/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz \
+RUN wget -O /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz https://mirrors.bfsu.edu.cn/apache/kafka/${KAFKA_VERSION}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz \
  && tar xfz /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -C /opt \
  && rm /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz \
  && ln -s /opt/kafka_${SCALA_VERSION}-${KAFKA_VERSION} ${KAFKA_HOME} \
