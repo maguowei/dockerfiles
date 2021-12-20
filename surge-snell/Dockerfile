@@ -3,7 +3,7 @@ LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/surge-snell"
 LABEL version="0.1.0"
 
-ENV SNELL_VERSION 2.0.5
+ENV SNELL_VERSION 2.0.6
 # RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     wget \
