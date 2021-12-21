@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/python"
 LABEL version="0.1.0"
