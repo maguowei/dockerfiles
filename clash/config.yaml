@@ -7,19 +7,39 @@ external-ui: /ui
 secret: ""
 ipv6: false
 proxies:
-  - name: jp
-    type: vmess
-    server: jp.xxx.com
+  # - name: jp
+  #   type: vmess
+  #   server: jp.xxx.com
+  #   port: 1984
+  #   uuid: 4b2e512f-abcd-abcd-abcd-06131fac6112
+  #   alterId: 32
+  #   cipher: auto
+  # Snell
+  # Beware that there's currently no UDP support yet
+  - name: hk
+    server: hk.vpn.xxx.com
     port: 1984
-    uuid: 4b2e512f-abcd-abcd-abcd-06131fac6112
-    alterId: 32
-    cipher: auto
+    psk: xxxx
+    version: 2
+    obfs-opts:
+      mode: http
 proxy-groups:
   - name: Proxy
     type: select
     proxies:
-      - jp
+      - hk
+  - name: auto
+    type: url-test
+    proxies:
+      - hk
+    url: 'http://www.gstatic.com/generate_204'
+    interval: 300
 rules:
   - DOMAIN-KEYWORD,youtube.com,Proxy
   - DOMAIN-KEYWORD,google.com,Proxy
-  - MATCH,DIRECT
+  - IP-CIDR,127.0.0.0/8,DIRECT
+  - GEOIP,CN,DIRECT
+  - DST-PORT,80,DIRECT
+  - SRC-PORT,7777,DIRECT
+  - MATCH,auto
+
