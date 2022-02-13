@@ -1,4 +1,4 @@
-ARG ELASTICSEARCH_VERSION=7.16.1
+ARG ELASTICSEARCH_VERSION=8.0.0
 FROM docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION}
 LABEL version="0.1.0"
 
