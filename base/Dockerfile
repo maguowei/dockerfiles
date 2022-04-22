@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/base"
 LABEL version="20.04"
