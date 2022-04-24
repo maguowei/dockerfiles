@@ -4,6 +4,7 @@ on:
   push:
     paths:
     - 'base/*'
+    - '.github/workflows/base.yaml'
 jobs:
   App:
     name: Build Base
