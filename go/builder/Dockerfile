@@ -1,5 +1,5 @@
-FROM golang:1.17-alpine AS builder
-LABEL version="0.2.0"
+FROM golang:1.18-alpine AS builder
+LABEL version="0.3.0"
 LABEL maintainer="imaguowei@gmail.com"
 
 ENV APP_PATH /opt/app
