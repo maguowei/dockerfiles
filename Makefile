@@ -39,3 +39,6 @@ build-tidb:
 
 build-paddlenlp:
 	docker build -t maguowei/paddlenlp paddlenlp
+
+build-jupyterlab:
+	docker build -t maguowei/jupyterlab jupyterlab
