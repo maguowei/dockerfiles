@@ -42,3 +42,6 @@ build-paddlenlp:
 
 build-jupyterlab:
 	docker build -t maguowei/jupyterlab jupyterlab
+
+build-juicefs-cloud:
+	docker build -t maguowei/juicefs-cloud juicefs/cloud
