@@ -1,4 +1,4 @@
-ARG TIDB_VERSION=6.0.0
+ARG TIDB_VERSION=6.3.0
 FROM ubuntu:22.04
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/tidb"
