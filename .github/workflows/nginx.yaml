@@ -1,4 +1,4 @@
-name: frp
+name: nginx
 on:
   workflow_dispatch:
   push:

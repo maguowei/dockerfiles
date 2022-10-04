@@ -1,4 +1,4 @@
-name: kafka
+name: tidb
 on:
   workflow_dispatch:
   push:
