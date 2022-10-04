@@ -21,4 +21,4 @@ curl -v http://api.twitter.com/1.1/statuses/update.json
 
 ## Ref
 
-- [v2ray/v2ray-core](https://github.com/v2ray/v2ray-core)
+- [v2fly/v2ray-core](https://github.com/v2fly/v2ray-core)
