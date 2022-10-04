@@ -9,5 +9,5 @@ RUN git clone https://github.com/Dreamacro/clash-dashboard.git \
     && cp -R dist/* /ui \
     && cd /ui && rm -rf clash-dashboard
 
-FROM dreamacro/clash:v1.9.0
+FROM dreamacro/clash:v1.11.8
 COPY --from=builder /ui /ui
