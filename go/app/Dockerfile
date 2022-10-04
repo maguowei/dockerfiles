@@ -1,4 +1,4 @@
-FROM alpine:3.14
+FROM alpine:3.16
 LABEL version="0.2.0"
 LABEL maintainer="imaguowei@gmail.com"
 
