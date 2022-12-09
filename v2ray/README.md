@@ -10,9 +10,12 @@ docker build -t maguowei/v2ray .
 docker run -it --rm maguowei/v2ray v2ctl uuid
 
 # server un
-docker run --name v2ray -d --restart always -p 1984:1984 -v ${PWD}/config.json:/etc/v2ray/config.json maguowei/v2ray
+docker run --name v2ray -d --restart always -p 1984:1984 maguowei/v2ray
 
-# client http proxy
+# get client id
+docker exec -it v2ray cat /etc/v2ray/config.json|grep "id"
+
+# client http proxy; client_http_config.json need update id
 docker run --name v2ray-http-client -d --restart always -p 1080:1080 -v ${PWD}/client_http_config.json:/etc/v2ray/config.json maguowei/v2ray
 
 export http_proxy=http://127.0.0.1:1080;https_proxy=http://127.0.0.1:1080
