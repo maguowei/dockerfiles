@@ -1,4 +1,4 @@
-ARG TIDB_VERSION=6.3.0
+ARG TIDB_VERSION=6.5.0
 FROM ubuntu:22.04
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/tidb"
@@ -32,7 +32,7 @@ RUN echo $TZ > /etc/timezone && \
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
-&& rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://tiup-mirrors.pingcap.com/install.sh | sh
 RUN tiup install tidb:v${TIDB_VERSION} tikv:v${TIDB_VERSION} pd:v${TIDB_VERSION} tiflash:v${TIDB_VERSION} grafana:v${TIDB_VERSION} prometheus:v${TIDB_VERSION} playground
