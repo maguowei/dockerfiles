@@ -15,4 +15,4 @@ kubectl expose pod surge-snell --port=1984 --type LoadBalancer
 
 ## Ref
 
-- [snell](https://github.com/surge-networks/snell) An encrypted proxy service program
+- [Snell Protocol](https://manual.nssurge.com/others/snell.html)
