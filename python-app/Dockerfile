@@ -1,7 +1,7 @@
 FROM maguowei/python:latest
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/python-app"
-LABEL version="0.1.0"
+LABEL version="0.2.0"
 
 ENV APP_NAME ${APP_NAME}
 ENV APP_ENV ${APP_ENV}
