@@ -37,9 +37,6 @@ build-kafka:
 build-tidb:
 	docker build -t maguowei/tidb tidb
 
-build-paddlenlp:
-	docker build -t maguowei/paddlenlp paddlenlp
-
 build-jupyterlab:
 	docker build -t maguowei/jupyterlab jupyterlab
 
