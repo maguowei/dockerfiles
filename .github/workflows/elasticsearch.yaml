@@ -25,8 +25,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: maguowei/elasticsearch
-  elasticsearch-v7:
-    name: elasticsearch-v7
+  elasticsearch-v7-arm64:
+    name: elasticsearch-v7-arm64
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -43,6 +43,6 @@ jobs:
         with:
           context: elasticsearch
           file: elasticsearch/Dockerfile.v7
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           push: true
-          tags: maguowei/elasticsearch:7
+          tags: maguowei/elasticsearch:7-arm64
