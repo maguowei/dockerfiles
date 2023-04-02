@@ -6,7 +6,7 @@ on:
       - "elasticsearch/*"
 jobs:
   elasticsearch:
-    name: adm64
+    name: elasticsearch
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
