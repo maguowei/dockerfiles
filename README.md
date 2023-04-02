@@ -10,7 +10,6 @@
 [![jupyterlab](https://github.com/maguowei/dockerfiles/actions/workflows/jupyterlab.yaml/badge.svg)](https://github.com/maguowei/dockerfiles/actions/workflows/jupyterlab.yaml)
 [![kafka](https://github.com/maguowei/dockerfiles/actions/workflows/kafka.yaml/badge.svg)](https://github.com/maguowei/dockerfiles/actions/workflows/kafka.yaml)
 [![tidb](https://github.com/maguowei/dockerfiles/actions/workflows/tidb.yaml/badge.svg)](https://github.com/maguowei/dockerfiles/actions/workflows/tidb.yaml)
-[![paddlenlp](https://github.com/maguowei/dockerfiles/actions/workflows/paddlenlp.yaml/badge.svg)](https://github.com/maguowei/dockerfiles/actions/workflows/paddlenlp.yaml)
 [![python-app](https://github.com/maguowei/dockerfiles/actions/workflows/python-app.yaml/badge.svg)](https://github.com/maguowei/dockerfiles/actions/workflows/python-app.yaml)
 [![surge-snell](https://github.com/maguowei/dockerfiles/actions/workflows/surge-snell.yaml/badge.svg)](https://github.com/maguowei/dockerfiles/actions/workflows/surge-snell.yaml)
 [![v2ray](https://github.com/maguowei/dockerfiles/actions/workflows/v2ray.yaml/badge.svg)](https://github.com/maguowei/dockerfiles/actions/workflows/v2ray.yaml)
