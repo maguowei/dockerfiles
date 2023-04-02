@@ -6,7 +6,7 @@ on:
       - "elasticsearch/*"
 jobs:
   elasticsearch:
-    name: Build Base
+    name: adm64
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -25,7 +25,7 @@ jobs:
           push: true
           tags: maguowei/elasticsearch
   elasticsearch-arm:
-    name: Build Base
+    name: arm
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -42,5 +42,6 @@ jobs:
         with:
           context: elasticsearch
           file: elasticsearch/Dockerfile.arm
+          platforms: linux/arm64
           push: true
-          tags: maguowei/elasticsearch
+          tags: maguowei/elasticsearch-arm
