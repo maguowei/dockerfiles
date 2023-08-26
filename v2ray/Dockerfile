@@ -1,4 +1,4 @@
-FROM v2fly/v2fly-core:v5.2.1
+FROM v2fly/v2fly-core:v5.7.0
 LABEL version="0.2.0"
 LABEL maintainer="imaguowei@gmail.com"
 
