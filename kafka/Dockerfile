@@ -3,7 +3,7 @@ LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/kafka"
 LABEL version="0.3.0"
 
-ARG kafka_version=3.4.0
+ARG kafka_version=3.5.1
 ARG scala_version=2.13
 
 ENV KAFKA_VERSION=$kafka_version \
