@@ -1,9 +1,9 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/base"
-LABEL version="22.04"
+LABEL version="24.04"
 
-RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
+# RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     apt-utils \
@@ -33,17 +33,15 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     vim \
     zsh \
     build-essential \
-    python3-dev \
-    python3-setuptools \
+    python3.12-dev \
     python3-pip \
-&& rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN ln -s /usr/bin/python3.12 /usr/bin/python
 
 ENV PIP_INDEX_URL https://mirrors.aliyun.com/pypi/simple/
 ENV PIPENV_PYPI_MIRROR https://mirrors.aliyun.com/pypi/simple/
 
-RUN python -m pip install -U pip wheel && python -m pip install poetry
 RUN wget -O- https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | zsh || true
 
 CMD ["zsh"]
