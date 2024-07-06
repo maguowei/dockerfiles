@@ -7,9 +7,9 @@
 docker build -t maguowei/v2ray .
 
 # generate new uuid
-docker run -it --rm maguowei/v2ray v2ctl uuid
+docker run -it --rm maguowei/v2ray uuid
 
-# server un
+# server run
 docker run --name v2ray -d --restart always -p 1984:1984 maguowei/v2ray
 
 # get client id
