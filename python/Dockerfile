@@ -1,10 +1,9 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/python"
 LABEL version="0.2.0"
 
-# RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list
-# RUN sed -i "s/security.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list
+RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list.d/debian.sources
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-utils \
@@ -17,8 +16,8 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 ENV LC_CTYPE zh_CN.UTF-8
 
-# ENV PIP_INDEX_URL https://mirrors.aliyun.com/pypi/simple/
-# ENV PIPENV_PYPI_MIRROR https://mirrors.aliyun.com/pypi/simple/
+ENV PIP_INDEX_URL https://mirrors.aliyun.com/pypi/simple/
+ENV PIPENV_PYPI_MIRROR https://mirrors.aliyun.com/pypi/simple/
 
 ENV TZ=Asia/Shanghai
 RUN echo $TZ > /etc/timezone && \
