@@ -1,5 +1,5 @@
-ARG TIDB_VERSION=7.3.0
-FROM ubuntu:22.04
+ARG TIDB_VERSION=8.1.1
+FROM ubuntu:24.04
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/tidb"
 LABEL version="0.4.0"
@@ -17,9 +17,9 @@ RUN locale-gen zh_CN.UTF-8 && locale-gen en_US.UTF-8
 
 ENV PATH=${PATH}:/root/.tiup/bin
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US.UTF-8
-ENV LC_CTYPE zh_CN.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US.UTF-8
+ENV LC_CTYPE=zh_CN.UTF-8
 
 ENV TZ=Asia/Shanghai
 RUN echo $TZ > /etc/timezone && \
