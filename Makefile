@@ -32,16 +32,13 @@ build-elasticsearch:
 	docker build -t maguowei/elasticsearch elasticsearch
 
 build-elasticsearch-arm:
-	docker build -t maguowei/elasticsearch-arm -f elasticsearch/Dockerfile.arm elasticsearch
+	docker build -t maguowei/elasticsearch-arm -f elasticsearch/Dockerfile.v7 elasticsearch
 
 build-kafka:
 	docker build -t maguowei/kafka kafka
 
 build-tidb:
 	docker build -t maguowei/tidb tidb
-
-build-jupyterlab:
-	docker build -t maguowei/jupyterlab jupyterlab
 
 build-juicefs-cloud:
 	docker build -t maguowei/juicefs-cloud juicefs/cloud
