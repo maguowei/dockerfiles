@@ -31,9 +31,6 @@ build-nginx:
 build-elasticsearch:
 	docker build -t maguowei/elasticsearch elasticsearch
 
-build-elasticsearch-arm:
-	docker build -t maguowei/elasticsearch-arm -f elasticsearch/Dockerfile.v7 elasticsearch
-
 build-kafka:
 	docker build -t maguowei/kafka kafka
 
