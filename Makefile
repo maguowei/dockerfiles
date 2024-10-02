@@ -31,9 +31,6 @@ build-nginx:
 build-elasticsearch:
 	docker build -t maguowei/elasticsearch elasticsearch
 
-build-kafka:
-	docker build -t maguowei/kafka kafka
-
 build-tidb:
 	docker build -t maguowei/tidb tidb
 
