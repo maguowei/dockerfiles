@@ -3,11 +3,11 @@ LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/python-app"
 LABEL version="0.2.0"
 
-ENV APP_NAME ${APP_NAME}
-ENV APP_ENV ${APP_ENV}
-ENV APP_SOURCE_CODE_PATH /app
-ENV APP_LOG_PATH /data/app/log
-ENV PATH .:$PATH
+ENV APP_NAME=${APP_NAME}
+ENV APP_ENV=${APP_ENV}
+ENV APP_SOURCE_CODE_PATH=/app
+ENV APP_LOG_PATH=/data/app/log
+ENV PATH=.:$PATH
 
 RUN groupadd app && useradd -ms /bin/bash -g app app
 RUN mkdir -p ${APP_LOG_PATH} && chown -R app:app ${APP_LOG_PATH} \
