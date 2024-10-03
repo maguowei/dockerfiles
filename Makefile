@@ -14,13 +14,13 @@ build-python-app:
 	docker build -t maguowei/python-app:onbuild python-app
 
 build-surge-snell:
-	docker build -t maguowei/surge-snell surge-snell
+	docker build --platform=linux/amd64 -t maguowei/surge-snell surge-snell
 
 build-v2ray:
 	docker build -t maguowei/v2ray v2ray
 
 build-frp:
-	docker build -t maguowei/frp frp
+	docker build --platform=linux/amd64 -t maguowei/frp frp
 
 build-nginx:
 	docker build -t maguowei/nginx nginx
