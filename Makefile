@@ -19,9 +19,6 @@ build-surge-snell:
 build-v2ray:
 	docker build -t maguowei/v2ray v2ray
 
-build-clash:
-	docker build -t maguowei/clash clash
-
 build-frp:
 	docker build -t maguowei/frp frp
 
@@ -33,6 +30,3 @@ build-elasticsearch:
 
 build-tidb:
 	docker build -t maguowei/tidb tidb
-
-build-juicefs-cloud:
-	docker build -t maguowei/juicefs-cloud juicefs/cloud
