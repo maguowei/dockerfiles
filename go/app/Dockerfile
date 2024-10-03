@@ -1,10 +1,10 @@
-FROM alpine:3.17
+FROM alpine:3.20
 LABEL version="0.3.0"
 LABEL maintainer="imaguowei@gmail.com"
 
-ENV APP_PATH /opt/app
-ENV APP_LOG_PATH /data/app/log
-ENV PATH .:$PATH
+ENV APP_PATH=/opt/app
+ENV APP_LOG_PATH=/data/app/log
+ENV PATH=.:$PATH
 RUN sed -i "s/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g" /etc/apk/repositories
 RUN apk add -U tzdata \
     curl \
