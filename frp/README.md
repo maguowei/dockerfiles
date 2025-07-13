@@ -2,7 +2,9 @@
 
 ```bash
 # frps
-$ docker run -it --rm -p 7000:7000 -p 6666:6666 maguowei/frp
+$ docker run -d --name frps -p 7000:7000 -p 7500:7500 --entrypoint /frp/frps maguowei/frp --token xxxx --dashboard-port 7500 --dashboard-pwd xxxxx
+
+
 
 # frpc
 # example service
