@@ -30,3 +30,6 @@ build-elasticsearch:
 
 build-tidb:
 	docker build -t maguowei/tidb tidb
+
+build-litellm:
+	docker build -t maguowei/litellm litellm

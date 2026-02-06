@@ -1,0 +1,18 @@
+# LiteLLM Proxy 配置文件
+# 用于配置 Kimi-K2-Thinking 模型
+
+model_list:
+  - model_name: Kimi-K2-Thinking
+    litellm_params:
+      model: azure/Kimi-K2-Thinking
+      api_base: os.environ/AZURE_API_BASE
+      api_key: os.environ/AZURE_API_KEY
+
+# 通用设置
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  allowed_origins: ["*"]
+
+# LiteLLM SDK 设置
+litellm_settings:
+  request_timeout: 600
