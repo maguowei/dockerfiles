@@ -2,7 +2,7 @@ FROM docker.litellm.ai/berriai/litellm:main-latest
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/litellm"
 LABEL version="latest"
-LABEL description="LiteLLM Proxy for Claude API"
+LABEL description="LiteLLM Proxy - Convert any LLM to Claude-compatible API for Claude Code integration"
 
 # 设置工作目录
 WORKDIR /app
