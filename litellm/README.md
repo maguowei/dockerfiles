@@ -26,18 +26,42 @@ docker run -d \
 ### 3. 测试服务
 
 ```bash
+# openai 协议
 curl -X POST 'http://localhost:4000/chat/completions' \
--H 'Content-Type: application/json' \
--H 'Authorization: Bearer sk-1234' \
--d '{
-  "model": "Kimi-K2-Thinking",
-  "messages": [
-    {
-      "role": "user",
-      "content": "你好，请介绍一下你自己"
-    }
-  ]
-}'
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer sk-1234' \
+  -d '{
+    "model": "Kimi-K2.5",
+    "messages": [
+      {
+        "role": "user",
+        "content": "你好，请介绍一下你自己"
+      }
+    ]
+  }'
+```
+
+```bash
+# anthropic 协议
+curl -X POST "http://localhost:4000/v1/messages" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: sk-1234" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "Kimi-K2.5",
+    "max_tokens": 1024,
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "你好，请介绍一下你自己"
+          }
+        ]
+      }
+    ]
+  }'
 ```
 
 ## 配置说明
