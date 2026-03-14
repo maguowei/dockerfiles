@@ -4,14 +4,16 @@ ZSH_THEME=""
 plugins=(git)
 source $ZSH/oh-my-zsh.sh
 
-# zsh 补全初始化
+# zsh-completions 的补全路径必须在 compinit 之前加入 fpath
+fpath=(/opt/zsh/zsh-completions/src $fpath)
+
+# zsh 补全初始化（须在 fpath 设置之后执行）
 autoload -Uz compinit
 compinit
 
 # 补全插件
 source /opt/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /opt/zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-fpath=(/opt/zsh/zsh-completions/src $fpath)
 
 # starship prompt
 eval "$(starship init zsh)"
