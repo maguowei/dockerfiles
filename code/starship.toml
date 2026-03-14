@@ -1,0 +1,36 @@
+# 简洁风格：显示目录、git、Node.js、Python、执行时间
+format = """
+$directory\
+$git_branch\
+$git_status\
+$nodejs\
+$python\
+$cmd_duration\
+$line_break\
+$character"""
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+
+[git_branch]
+symbol = " "
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+
+[nodejs]
+symbol = " "
+format = "[$symbol($version)]($style) "
+
+[python]
+symbol = " "
+format = "[$symbol($version)]($style) "
+
+[cmd_duration]
+min_time = 2000
+format = "took [$duration]($style) "
+
+[character]
+success_symbol = "[❯](green)"
+error_symbol = "[❯](red)"
