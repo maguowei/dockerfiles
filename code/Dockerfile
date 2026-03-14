@@ -9,9 +9,4 @@ RUN npm install -g \
     @openai/codex \
     @google/gemini-cli
 
-# 复制 zsh 及 starship 配置文件
-RUN mkdir -p /root/.config
-COPY .zshrc /root/.zshrc
-COPY starship.toml /root/.config/starship.toml
-
 CMD ["zsh"]

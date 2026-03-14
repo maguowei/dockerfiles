@@ -120,4 +120,7 @@ ENV GOPROXY=https://goproxy.cn,direct
 ENV PATH="/root/.local/bin:/usr/local/go/bin:/root/go/bin:$PATH"
 ENV SHELL=/bin/zsh
 
+# 复制 zsh 默认配置文件
+COPY .zshrc /root/.zshrc
+
 CMD ["zsh"]
