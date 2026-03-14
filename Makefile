@@ -14,7 +14,7 @@ build-python-app:
 	docker build -t maguowei/python:onbuild python/app
 
 build-surge-snell:
-	docker build --platform=linux/amd64 -t maguowei/surge-snell surge-snell
+	docker build -t maguowei/surge-snell surge-snell
 
 build-v2ray:
 	docker build -t maguowei/v2ray v2ray
