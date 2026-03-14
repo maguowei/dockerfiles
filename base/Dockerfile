@@ -25,23 +25,20 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
 
 # Layer 2: 基础系统工具
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    build-essential \
     ca-certificates \
     curl \
-    wget \
     git \
-    vim \
-    jq \
-    unzip \
-    make \
-    build-essential \
+    htop \
     iputils-ping \
+    jq \
     net-tools \
     openssh-client \
     tmux \
     tree \
-    htop \
-    software-properties-common \
-    gnupg \
+    unzip \
+    vim \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Layer 3: Node.js 22 LTS（通过 NodeSource 官方脚本安装）
