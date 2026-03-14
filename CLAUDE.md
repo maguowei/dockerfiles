@@ -19,7 +19,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **v2ray**: V2Ray 代理工具镜像
 - **nginx**: Nginx Web 服务器镜像
 - **elasticsearch**: Elasticsearch 搜索引擎镜像
-- **tidb**: TiDB 数据库镜像
 
 每个镜像目录包含:
 - `Dockerfile`: 镜像构建定义
@@ -50,7 +49,6 @@ make build-surge-snell  # Surge Snell 代理
 make build-v2ray        # V2Ray 代理
 make build-nginx        # Nginx Web 服务器
 make build-elasticsearch # Elasticsearch 搜索引擎
-make build-tidb         # TiDB 数据库
 ```
 
 注意:部分镜像(如 frp、surge-snell)使用 `--platform=linux/amd64` 参数构建特定平台镜像。

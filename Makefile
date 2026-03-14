@@ -28,9 +28,6 @@ build-nginx:
 build-elasticsearch:
 	docker build -t maguowei/elasticsearch elasticsearch
 
-build-tidb:
-	docker build -t maguowei/tidb tidb
-
 build-litellm:
 	docker build -t maguowei/litellm litellm
 
