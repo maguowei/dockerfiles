@@ -73,7 +73,7 @@ RUN mkdir -p /etc/apt/keyrings \
     && echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" \
     | tee /etc/apt/sources.list.d/gierens.list \
     && apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y eza \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends eza \
     && rm -rf /var/lib/apt/lists/*
 
 # Layer 5: zsh 生态
@@ -104,7 +104,8 @@ RUN apt-get update && \
 
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.14 \
     && ln -sf /usr/bin/python3.14 /usr/local/bin/python \
-    && ln -sf /usr/bin/python3.14 /usr/local/bin/python3
+    && ln -sf /usr/bin/python3.14 /usr/local/bin/python3 \
+    && rm -rf /root/.cache/pip
 
 ENV PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
 ENV PIPENV_PYPI_MIRROR=https://mirrors.aliyun.com/pypi/simple/
