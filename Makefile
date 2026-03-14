@@ -33,3 +33,6 @@ build-tidb:
 
 build-litellm:
 	docker build -t maguowei/litellm litellm
+
+build-code:
+	docker build -t maguowei/code code
