@@ -60,14 +60,16 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     && ln -sf /usr/bin/batcat /usr/local/bin/bat \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装 eza（通过官方 apt 仓库）
-RUN mkdir -p /etc/apt/keyrings \
+# 安装 eza（通过官方 apt 仓库，gnupg 用完即删）
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gnupg \
+    && mkdir -p /etc/apt/keyrings \
     && wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc \
     | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg \
     && echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" \
     | tee /etc/apt/sources.list.d/gierens.list \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends eza \
+    && apt-get remove -y gnupg && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Layer 5: zsh 生态
