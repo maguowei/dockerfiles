@@ -109,7 +109,21 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:$PATH"
 ENV UV_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
 
-# Layer 7: 复制配置文件到镜像
+# Layer 7: Go（自动获取最新版本，按架构选择二进制）
+RUN ARCH=$(uname -m) && \
+    case "$ARCH" in \
+        x86_64)  GOARCH="amd64" ;; \
+        aarch64) GOARCH="arm64" ;; \
+    esac && \
+    GO_VERSION=$(curl -fsSL https://go.dev/VERSION?m=text | head -1) && \
+    curl -fsSL "https://go.dev/dl/${GO_VERSION}.linux-${GOARCH}.tar.gz" \
+    | tar -xz -C /usr/local
+
+ENV PATH="/usr/local/go/bin:/root/go/bin:$PATH"
+ENV GOPATH=/root/go
+ENV GOPROXY=https://goproxy.cn,direct
+
+# Layer 8: 复制配置文件到镜像
 RUN mkdir -p /root/.config
 COPY .zshrc /root/.zshrc
 COPY starship.toml /root/.config/starship.toml
