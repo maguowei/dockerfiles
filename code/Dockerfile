@@ -91,24 +91,20 @@ RUN mkdir -p /opt/zsh \
 # 安装 starship prompt（官方安装脚本）
 RUN curl -sS https://starship.rs/install.sh | sh -s -- --yes
 
-# Layer 6: Python 3.14
-# ubuntu:26.04 若已提供 python3.14 则直接安装，否则通过 deadsnakes PPA 安装
-RUN apt-get update && \
-    (DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        python3.14 python3.14-dev python3.14-venv 2>/dev/null \
-    || (add-apt-repository ppa:deadsnakes/ppa -y \
-        && apt-get update \
-        && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            python3.14 python3.14-dev python3.14-venv)) \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.14 \
+# Layer 6: Python 3.14（ubuntu:26.04 原生提供）
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    python3.14 \
+    python3.14-dev \
+    python3.14-venv \
     && ln -sf /usr/bin/python3.14 /usr/local/bin/python \
     && ln -sf /usr/bin/python3.14 /usr/local/bin/python3 \
-    && rm -rf /root/.cache/pip
+    && rm -rf /var/lib/apt/lists/*
 
-ENV PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
-ENV PIPENV_PYPI_MIRROR=https://mirrors.aliyun.com/pypi/simple/
+# 安装 uv 包管理器
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+ENV PATH="/root/.local/bin:$PATH"
+ENV UV_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
 
 # Layer 7: 复制配置文件到镜像
 RUN mkdir -p /root/.config
