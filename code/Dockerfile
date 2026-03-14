@@ -88,8 +88,13 @@ RUN mkdir -p /opt/zsh \
     && git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting /opt/zsh/zsh-syntax-highlighting \
     && git clone --depth=1 https://github.com/zsh-users/zsh-completions /opt/zsh/zsh-completions
 
-# 安装 starship prompt（官方安装脚本）
-RUN curl -sS https://starship.rs/install.sh | sh -s -- --yes
+# 安装 starship prompt（按架构选择对应二进制：amd64 用 musl，arm64 用 gnu）
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then TARGET="x86_64-unknown-linux-musl"; \
+    elif [ "$ARCH" = "aarch64" ]; then TARGET="aarch64-unknown-linux-gnu"; \
+    fi && \
+    curl -fsSL "https://github.com/starship/starship/releases/latest/download/starship-${TARGET}.tar.gz" \
+    | tar -xz -C /usr/local/bin
 
 # Layer 6: Python 3.14（ubuntu:26.04 原生提供）
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
