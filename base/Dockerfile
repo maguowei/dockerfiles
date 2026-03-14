@@ -103,13 +103,17 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ENV UV_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
 
-# Layer 7: Go（自动获取最新版本，按架构选择二进制）
+# Layer 7: Go（主版本钉选，补丁自动跟进）
+ARG GO_MAJOR=1.26
 RUN ARCH=$(uname -m) && \
     case "$ARCH" in \
         x86_64)  GOARCH="amd64" ;; \
         aarch64) GOARCH="arm64" ;; \
     esac && \
-    GO_VERSION=$(curl -fsSL https://go.dev/VERSION?m=text | head -1) && \
+    GO_VERSION=$(curl -fsSL "https://go.dev/dl/?mode=json" | \
+        jq -r --arg major "${GO_MAJOR}" \
+        '[.[] | select(.stable == true) | .version | select(startswith("go" + $major + "."))] | first') && \
+    echo "Installing Go version: ${GO_VERSION}" && \
     curl -fsSL "https://go.dev/dl/${GO_VERSION}.linux-${GOARCH}.tar.gz" \
     | tar -xz -C /usr/local
 
