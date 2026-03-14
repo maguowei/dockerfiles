@@ -53,7 +53,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
 RUN npm install -g \
     @anthropic-ai/claude-code \
     opencode-ai \
-    @openai/codex
+    @openai/codex \
+    @google/gemini-cli
 
 # Layer 4: 现代 CLI 工具
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
