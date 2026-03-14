@@ -1,6 +1,6 @@
-# maguowei/python
+# maguowei/python:onbuild
 
-基于 `python:3.14-slim` 的 Python 应用镜像，集成 uv 包管理器、中文环境和时区配置，通过 ONBUILD 自动安装依赖。
+基于 `maguowei/python` 的 ONBUILD 应用模板镜像，自动通过 uv 安装依赖。
 
 ## 使用方法
 
@@ -24,17 +24,12 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `LANG` | `en_US.UTF-8` | 系统语言 |
-| `LC_CTYPE` | `zh_CN.UTF-8` | 字符类型 |
-| `TZ` | `Asia/Shanghai` | 时区 |
-| `UV_INDEX_URL` | `https://mirrors.aliyun.com/pypi/simple/` | uv 镜像源 |
-| `UV_COMPILE_BYTECODE` | `1` | 编译 Python 字节码 |
 | `VIRTUAL_ENV` | `/opt/venv` | 虚拟环境路径 |
-| `APP_PATH` | `/app` | 应用代码路径 |
+| `APP_PATH` | `/app` | 应用代码路径（WORKDIR） |
 | `APP_LOG_PATH` | `/data/app/log` | 日志路径（Volume） |
 
 ## 构建
 
 ```bash
-make build-python
+make build-python-app
 ```

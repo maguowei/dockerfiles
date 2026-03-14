@@ -12,8 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **base**: Ubuntu 24.04 基础镜像,预装中文环境、常用工具和 Python 3.12
 - **go**: Go 语言相关镜像,包含 `builder`(构建镜像)和 `app`(运行时镜像)两个子目录
-- **python**: Python 基础镜像,基于 base 镜像扩展
-- **python-app**: Python 应用镜像,使用 ONBUILD 指令,基于 poetry 管理依赖
+- **python**: Python 相关镜像集合，包含 `base`（基础层：Python 3.14 + uv）和 `app`（ONBUILD 应用模板）两个子目录
 - **frp**: 内网穿透工具 frp 的镜像
 - **surge-snell**: Surge Snell 代理协议镜像
 - **v2ray**: V2Ray 代理工具镜像
@@ -40,8 +39,8 @@ make build-go-app       # Go 应用镜像
 make build-go-builder   # Go 构建镜像
 
 # 构建 Python 相关镜像
-make build-python       # Python 基础镜像
-make build-python-app   # Python 应用镜像
+make build-python       # Python 基础镜像（maguowei/python）
+make build-python-app   # Python 应用镜像（maguowei/python:onbuild）
 
 # 构建其他服务镜像
 make build-frp          # FRP 内网穿透
@@ -67,21 +66,21 @@ GitHub Actions 自动化构建流程位于 `.github/workflows/` 目录:
 
 ### ONBUILD 模式镜像
 
-部分镜像(如 `go/builder`、`python-app`)使用 ONBUILD 指令模式,作为应用镜像的基础:
+部分镜像（如 `go/builder`、`python`）使用 ONBUILD 指令模式，作为应用镜像的基础:
 
 **go/builder**:
 - 使用 `FROM maguowei/go-builder:onbuild` 作为基础镜像
-- 自动执行依赖下载和编译,编译时注入版本信息(GitCommit、BuildTime、GoVersion)
+- 自动执行依赖下载和编译，编译时注入版本信息（GitCommit、BuildTime、GoVersion）
 - 需要设置 `APP_NAME` 构建参数指定应用名称
 
-**python-app**:
-- 使用 `FROM maguowei/python-app:onbuild` 作为基础镜像
-- 自动执行 poetry 依赖安装
-- 预配置应用路径、日志路径和环境变量
+**python**:
+- 使用 `FROM maguowei/python:onbuild` 作为基础镜像
+- 自动执行 uv 依赖安装（`uv sync --no-dev --frozen`）
+- 预配置应用路径、日志路径和虚拟环境
 
 ### 镜像依赖链
 
-- `base` → `python` → `python-app`
+- `python:3.14-slim` → `maguowei/python` → `maguowei/python:onbuild`
 - `golang:1.23-alpine` → `go/builder`
 - `ubuntu:24.04` → `base`
 

@@ -1,30 +1,29 @@
-FROM python:3.12-slim
+FROM python:3.14-slim
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/python"
-LABEL version="0.2.0"
 
+# 使用阿里云镜像加速 apt
 RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list.d/debian.sources
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    apt-utils \
+# 安装 locale 和时区依赖
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     locales \
+    tzdata \
+    && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
+    && echo "zh_CN.UTF-8 UTF-8" >> /etc/locale.gen \
+    && locale-gen \
     && rm -rf /var/lib/apt/lists/*
-
-RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && echo "zh_CN.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen
 
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US.UTF-8
 ENV LC_CTYPE=zh_CN.UTF-8
-
-ENV PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
-ENV PIPENV_PYPI_MIRROR=https://mirrors.aliyun.com/pypi/simple/
-
 ENV TZ=Asia/Shanghai
-RUN echo $TZ > /etc/timezone && \
-    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
-    dpkg-reconfigure -f noninteractive tzdata
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-ENV POETRY_VIRTUALENVS_CREATE=false
-RUN pip install -U pip && pip install poetry
+# 安装 uv
+RUN pip install --no-cache-dir uv
 
-CMD ["python"]
+ENV UV_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
+ENV UV_COMPILE_BYTECODE=1
+
+CMD ["python3"]
