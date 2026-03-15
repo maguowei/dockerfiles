@@ -15,4 +15,4 @@ kubectl expose pod surge-snell --port=1984 --type LoadBalancer
 
 ## Ref
 
-- [Snell Protocol](https://manual.nssurge.com/others/snell.html)
+- [Snell Protocol](https://kb.nssurge.com/surge-knowledge-base/zh/release-notes/snell)
