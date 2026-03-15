@@ -68,7 +68,7 @@ GitHub Actions 自动化构建流程位于 `.github/workflows/` 目录:
 
 **go/builder**:
 - 使用 `FROM maguowei/go-builder:onbuild` 作为基础镜像
-- 自动执行依赖下载和编译，编译时注入版本信息（GitCommit、BuildTime、GoVersion）
+- 自动执行依赖下载和编译，版本信息通过 Go 内置 `debug/buildinfo` 自动嵌入
 - 需要设置 `APP_NAME` 构建参数指定应用名称
 
 **python**:
@@ -79,7 +79,7 @@ GitHub Actions 自动化构建流程位于 `.github/workflows/` 目录:
 ### 镜像依赖链
 
 - `python:3.14-slim` → `maguowei/python` → `maguowei/python:onbuild`
-- `golang:1.23-alpine` → `go/builder`
+- `golang:1.26-alpine` → `go/builder`
 - `ubuntu:24.04` → `base`
 
 ## 环境配置
