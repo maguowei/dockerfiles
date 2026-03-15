@@ -22,9 +22,6 @@ build-v2ray:
 build-frp:
 	docker build --platform=linux/amd64 -t maguowei/frp frp
 
-build-nginx:
-	docker build -t maguowei/nginx nginx
-
 build-elasticsearch:
 	docker build -t maguowei/elasticsearch elasticsearch
 

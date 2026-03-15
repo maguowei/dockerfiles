@@ -16,7 +16,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **frp**: 内网穿透工具 frp 的镜像
 - **surge-snell**: Surge Snell 代理协议镜像
 - **v2ray**: V2Ray 代理工具镜像
-- **nginx**: Nginx Web 服务器镜像
 - **elasticsearch**: Elasticsearch 搜索引擎镜像
 
 每个镜像目录包含:
@@ -46,7 +45,6 @@ make build-python-app   # Python 应用镜像（maguowei/python:onbuild）
 make build-frp          # FRP 内网穿透
 make build-surge-snell  # Surge Snell 代理
 make build-v2ray        # V2Ray 代理
-make build-nginx        # Nginx Web 服务器
 make build-elasticsearch # Elasticsearch 搜索引擎
 ```
 
