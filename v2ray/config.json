@@ -6,7 +6,7 @@
       "clients": [{
         "id": "{uuid}",
         "level": 1,
-        "alterId": 64
+        "alterId": 0
       }]
     }
   }],
@@ -17,12 +17,5 @@
     "protocol": "blackhole",
     "settings": {},
     "tag": "blocked"
-  }],
-  "routing": {
-    "rules": [{
-      "type": "field",
-      "ip": ["geoip:private"],
-      "outboundTag": "blocked"
-    }]
-  }
+  }]
 }
