@@ -1,4 +1,4 @@
-FROM v2fly/v2fly-core:v5.16.1
+FROM ghcr.io/v2fly/v2ray:v5.47.0
 LABEL version="0.2.0"
 LABEL maintainer="imaguowei@gmail.com"
 
