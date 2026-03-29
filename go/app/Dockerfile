@@ -8,12 +8,17 @@ LABEL org.opencontainers.image.title="go-app" \
 
 ENV APP_PATH=/opt/app \
     APP_BIN=/opt/app/app \
-    TZ=UTC
+    TZ=Asia/Shanghai \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 \
+    LC_CTYPE=zh_CN.UTF-8
 
 RUN if [ -n "${ALPINE_MIRROR}" ]; then \
         sed -i "s|https://dl-cdn.alpinelinux.org|${ALPINE_MIRROR}|g" /etc/apk/repositories; \
     fi \
     && apk add --no-cache ca-certificates tzdata \
+    && ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo "Asia/Shanghai" > /etc/timezone \
     && addgroup -g 10001 -S app \
     && adduser -u 10001 -S -D -H -G app app \
     && mkdir -p "${APP_PATH}" \
