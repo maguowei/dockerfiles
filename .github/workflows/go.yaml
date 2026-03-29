@@ -24,7 +24,7 @@ jobs:
           context: go/app
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: maguowei/go-app:onbuild
+          tags: maguowei/go-app:latest
   Builder:
     name: Build go-builder
     runs-on: ubuntu-latest
@@ -44,4 +44,4 @@ jobs:
           context: go/builder
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: maguowei/go-builder:onbuild
+          tags: maguowei/go-builder:latest

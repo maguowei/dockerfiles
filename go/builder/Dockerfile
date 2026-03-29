@@ -1,17 +1,21 @@
-FROM golang:1.26-alpine AS builder
-LABEL maintainer="imaguowei@gmail.com"
+FROM golang:1.26-alpine
 
-ENV APP_PATH=/opt/app
-WORKDIR ${APP_PATH}
+ARG ALPINE_MIRROR=
+ARG GOPROXY=https://proxy.golang.org,direct
 
-# 配置镜像源和安装依赖
-RUN sed -i "s/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g" /etc/apk/repositories \
-    && apk add --no-cache git \
-    && go env -w GOPROXY=https://goproxy.cn,direct
+LABEL org.opencontainers.image.title="go-builder" \
+      org.opencontainers.image.description="Reusable Go builder base image" \
+      org.opencontainers.image.authors="imaguowei@gmail.com"
 
-ONBUILD ARG APP_NAME
-ONBUILD COPY go.mod go.sum ./
-ONBUILD RUN go mod download
-ONBUILD COPY . ${APP_PATH}
-ONBUILD RUN CGO_ENABLED=0 go build -v -ldflags "-s -w" \
-    -o ${APP_NAME}.app ${APP_PATH}/cmd/${APP_NAME}
+ENV CGO_ENABLED=0 \
+    GOPROXY=${GOPROXY}
+
+WORKDIR /src
+
+RUN if [ -n "${ALPINE_MIRROR}" ]; then \
+        sed -i "s|https://dl-cdn.alpinelinux.org|${ALPINE_MIRROR}|g" /etc/apk/repositories; \
+    fi \
+    && apk add --no-cache ca-certificates git \
+    && update-ca-certificates
+
+COPY --chmod=755 build-go-app.sh /usr/local/bin/build-go-app

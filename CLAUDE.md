@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 仓库采用平铺目录结构,每个顶层目录对应一个镜像或一组相关镜像:
 
 - **base**: Ubuntu 24.04 基础镜像,预装中文环境、常用工具和 Python 3.12
-- **go**: Go 语言相关镜像,包含 `builder`(构建镜像)和 `app`(运行时镜像)两个子目录
+- **go**: Go 语言相关镜像,包含显式复用的 `builder`(构建基础镜像)和 `app`(运行时基础镜像)两个子目录
 - **python**: Python 相关镜像集合，包含 `base`（基础层：Python 3.14 + uv）和 `app`（ONBUILD 应用模板）两个子目录
 - **frp**: 内网穿透工具 frp 的镜像
 - **surge-snell**: Surge Snell 代理协议镜像
@@ -62,14 +62,21 @@ GitHub Actions 自动化构建流程位于 `.github/workflows/` 目录:
 
 ## 镜像架构模式
 
-### ONBUILD 模式镜像
-
-部分镜像（如 `go/builder`、`python`）使用 ONBUILD 指令模式，作为应用镜像的基础:
+### 显式基础镜像
 
 **go/builder**:
-- 使用 `FROM maguowei/go-builder:onbuild` 作为基础镜像
-- 自动执行依赖下载和编译，版本信息通过 Go 内置 `debug/buildinfo` 自动嵌入
-- 需要设置 `APP_NAME` 构建参数指定应用名称
+- 使用 `FROM maguowei/go-builder:latest AS builder`
+- 提供 Go 编译环境和 `build-go-app` 构建脚本
+- 业务镜像需显式声明 `COPY`、`go mod download` 和编译步骤
+
+**go/app**:
+- 使用 `FROM maguowei/go-app:latest`
+- 提供非 root 运行时、`/opt/app` 工作目录和通用 entrypoint
+- 业务镜像需显式从 builder 阶段复制 `/out/` 到 `/opt/app/`
+
+### ONBUILD 模式镜像
+
+当前仅 `python` 镜像仍使用 ONBUILD 指令模式，作为应用镜像的基础:
 
 **python**:
 - 使用 `FROM maguowei/python:onbuild` 作为基础镜像
@@ -79,18 +86,19 @@ GitHub Actions 自动化构建流程位于 `.github/workflows/` 目录:
 ### 镜像依赖链
 
 - `python:3.14-slim` → `maguowei/python` → `maguowei/python:onbuild`
-- `golang:1.26-alpine` → `go/builder`
+- `golang:1.26-alpine` → `maguowei/go-builder`
+- `alpine:3.21` → `maguowei/go-app`
 - `ubuntu:24.04` → `base`
 
 ## 环境配置
 
 ### 镜像源配置
 
-镜像中使用阿里云镜像源加速:
+部分镜像默认使用国内镜像源或支持通过构建参数切换镜像源:
 - Ubuntu APT 源: `mirrors.aliyun.com`
-- Alpine APK 源: `mirrors.aliyun.com`
+- Alpine APK 源: Go 镜像可通过 `ALPINE_MIRROR` 覆盖
 - Python PyPI 源: `mirrors.aliyun.com/pypi/simple/`
-- Go Proxy: `goproxy.cn`
+- Go Proxy: Go 镜像可通过 `GOPROXY` 覆盖
 
 ### 时区和本地化
 

@@ -1,35 +1,57 @@
-# Golang App multi-stage builds image
+# Golang App Multi-stage Images
 
-基于 ONBUILD 模式的 Go 应用多阶段构建镜像，包含 builder（编译）和 app（运行时）两个镜像。
+Go 镜像拆成两个显式基础镜像：
+
+- `maguowei/go-builder:latest`：提供编译环境和 `build-go-app` 构建脚本
+- `maguowei/go-app:latest`：提供最小运行时、非 root 用户和通用 entrypoint
+
+这套方案不再使用 `ONBUILD`，业务项目需要在自己的 Dockerfile 里显式声明构建步骤。这样更容易调试，也不会把 stage 名称和复制行为藏在基础镜像里。
 
 ## 镜像说明
 
-### builder (`maguowei/go-builder:onbuild`)
+### builder (`maguowei/go-builder:latest`)
 
 - 基础镜像：`golang:1.26-alpine`
-- 自动执行依赖下载（`go mod download`）和编译
-- 使用 `-ldflags "-s -w"` 剥离调试信息，减小二进制体积
-- 支持多架构构建（amd64、arm64），由 Docker buildx `--platform` 自动处理
-- 版本信息通过 Go 内置 `runtime/debug.ReadBuildInfo()` 自动嵌入
+- 默认 `CGO_ENABLED=0`
+- 内置 `build-go-app`，默认把二进制输出到 `/out/app`
+- 如果项目存在 `configs/` 目录，会一并复制到 `/out/configs/`
+- 通过 `ARG GOPROXY`、`ARG ALPINE_MIRROR` 覆盖网络环境，而不是写死国内源
 
-### app (`maguowei/go-app:onbuild`)
+### app (`maguowei/go-app:latest`)
 
 - 基础镜像：`alpine:3.21`
-- 最小化运行时依赖：`tzdata`、`curl`、`ca-certificates`
-- 预配置时区 `Asia/Shanghai`
-- 以非 root 用户 `app` 运行
-- 自动从 builder 阶段复制编译产物和配置文件
+- 运行时仅保留 `ca-certificates` 和 `tzdata`
+- 固定非 root 用户 `app`（uid/gid `10001`）
+- 默认从 `APP_BIN=/opt/app/app` 启动应用
+- 不再预设日志目录或 `VOLUME`，建议直接输出到 stdout/stderr
 
 ## 使用方法
 
 在你的项目中创建 `Dockerfile`：
 
 ```dockerfile
-FROM maguowei/go-builder:onbuild AS builder
-ARG APP_NAME=myapp
+# syntax=docker/dockerfile:1.7
 
-FROM maguowei/go-app:onbuild
+ARG GO_BUILDER_IMAGE=maguowei/go-builder:latest
+ARG GO_APP_IMAGE=maguowei/go-app:latest
+
+FROM ${GO_BUILDER_IMAGE} AS builder
 ARG APP_NAME=myapp
+WORKDIR /src
+
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download && go mod verify
+
+COPY . .
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    APP_NAME=${APP_NAME} GO_OUTPUT_DIR=/out build-go-app
+
+FROM ${GO_APP_IMAGE}
+COPY --from=builder --chown=app:app /out/ /opt/app/
+
+EXPOSE 8080
 ```
 
 构建并运行：
@@ -39,6 +61,8 @@ docker build --build-arg APP_NAME=myapp -t myapp .
 docker run -p 8080:8080 myapp
 ```
 
+如果你希望二进制名不是 `/opt/app/app`，可以在运行时镜像里设置 `ENV APP_BIN=/opt/app/<your-binary>`。
+
 ### 项目结构要求
 
 ```
@@ -46,7 +70,7 @@ docker run -p 8080:8080 myapp
 ├── cmd/
 │   └── myapp/          # 应用入口，APP_NAME 对应此目录名
 │       └── main.go
-├── configs/            # 配置文件目录，自动复制到运行时镜像
+├── configs/            # 可选，存在时会被复制到运行时镜像
 ├── go.mod
 ├── go.sum
 └── Dockerfile
@@ -91,5 +115,5 @@ docker buildx build --platform linux/amd64,linux/arm64 \
 
 ## Ref
 
-- [Understand how ARG and FROM interact](https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact)
+- [Dockerfile cache mounts](https://docs.docker.com/build/cache/optimize/)
 - [Go runtime/debug.ReadBuildInfo](https://pkg.go.dev/runtime/debug#ReadBuildInfo)
