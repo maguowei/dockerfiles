@@ -17,6 +17,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **surge-snell**: Surge Snell 代理协议镜像
 - **v2ray**: V2Ray 代理工具镜像
 - **elasticsearch**: Elasticsearch 搜索引擎镜像
+- **litellm**: LiteLLM 统一 LLM API 代理镜像
+- **code**: 代码开发环境镜像
 
 每个镜像目录包含:
 - `Dockerfile`: 镜像构建定义
@@ -26,6 +28,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 构建命令
 
 ### 本地构建
+
+构建镜像:
 
 使用 Makefile 中定义的目标构建镜像:
 
@@ -46,15 +50,36 @@ make build-frp          # FRP 内网穿透
 make build-surge-snell  # Surge Snell 代理
 make build-v2ray        # V2Ray 代理
 make build-elasticsearch # Elasticsearch 搜索引擎
+make build-litellm       # LiteLLM API 代理
+make build-code          # 代码开发环境
 ```
 
 注意:部分镜像(如 frp、surge-snell)使用 `--platform=linux/amd64` 参数构建特定平台镜像。
+
+推送镜像到 Docker Hub:
+
+```bash
+docker push maguowei/<image-name>:latest
+```
+
+验证镜像:
+
+```bash
+# 验证基础镜像
+docker run --rm maguowei/base:latest cat /etc/os-release
+
+# 验证 Go 镜像
+docker run --rm maguowei/go-builder:latest go version
+
+# 验证 Python 镜像
+docker run --rm maguowei/python:latest python --version
+```
 
 ### CI/CD 构建
 
 GitHub Actions 自动化构建流程位于 `.github/workflows/` 目录:
 - 每个镜像对应一个独立的 workflow 文件(如 `base.yaml`、`go.yaml`)
-- 当对应镜像目录或 workflow 文件变更时自动触发构建
+- 当对应镜像目录变更时自动触发构建(如 `go/**` 路径变更触发 go.yaml)
 - 支持多平台构建(linux/amd64、linux/arm64),具体平台根据镜像而定
 - 构建完成后自动推送到 Docker Hub
 
