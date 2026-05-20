@@ -9,7 +9,6 @@
 - [Claude Code](https://github.com/anthropics/claude-code) - Anthropic 官方 AI 编程助手 CLI
 - [OpenCode](https://opencode.ai) - 开源 AI 编程助手 CLI
 - [Codex](https://github.com/openai/codex) - OpenAI Codex CLI
-- [Gemini CLI](https://github.com/google-gemini/gemini-cli) - Google Gemini CLI
 
 ### 继承自 base 镜像
 

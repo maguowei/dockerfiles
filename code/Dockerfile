@@ -6,7 +6,6 @@ LABEL name="maguowei/code"
 RUN npm install -g \
     @anthropic-ai/claude-code \
     opencode-ai \
-    @openai/codex \
-    @google/gemini-cli
+    @openai/codex
 
 CMD ["zsh"]
