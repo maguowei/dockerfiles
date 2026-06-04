@@ -77,9 +77,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     zsh \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装 oh-my-zsh 及 zsh 补全插件
+# 安装 zsh 补全插件
 RUN mkdir -p /opt/zsh \
-    && git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /opt/zsh/oh-my-zsh \
     && git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions /opt/zsh/zsh-autosuggestions \
     && git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting /opt/zsh/zsh-syntax-highlighting \
     && git clone --depth=1 https://github.com/zsh-users/zsh-completions /opt/zsh/zsh-completions
