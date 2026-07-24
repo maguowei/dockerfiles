@@ -1,12 +1,16 @@
-FROM alpine AS builder
-RUN apk add --no-cache util-linux
-COPY config.json /tmp/config.json
-RUN sed -i "s/{uuid}/$(uuidgen)/g" /tmp/config.json
+FROM ghcr.io/v2fly/v2ray:v5.47.0 AS upstream
 
-FROM ghcr.io/v2fly/v2ray:v5.47.0
-LABEL version="0.2.0"
+FROM alpine:3.21
+LABEL version="0.3.0"
 LABEL maintainer="imaguowei@gmail.com"
 
-COPY --from=builder /tmp/config.json /opt/v2ray/etc/config.json
+RUN apk add --no-cache ca-certificates
+
+COPY --from=upstream /opt/v2ray/bin/v2ray /usr/local/bin/v2ray
+COPY config.json /opt/v2ray/etc/config.template.json
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 1984
-CMD [ "run", "-config", "/opt/v2ray/etc/config.json" ]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["run", "-config", "/opt/v2ray/etc/config.json"]
