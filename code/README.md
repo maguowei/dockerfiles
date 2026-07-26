@@ -37,12 +37,26 @@ docker run -it --rm \
 
 ```bash
 container image pull maguowei/code
-container machine create maguowei/code --name code
+container machine create maguowei/code --cpus 2 --memory 4G --name code --set-default
 ```
 
 首次启动时镜像内的 `/etc/machine/create-user.sh` 会接管用户创建，将登录 shell 设为 zsh 并带上 base 的 `.zshrc`——登录进去即是配好的 zsh。
 
-参考 [container-machine 文档](https://github.com/apple/container/blob/main/docs/container-machine.md)。
+常用管理命令：
+
+```bash
+container machine run -n code                    # 进入交互 shell（省略 -n 用默认 machine）
+container machine run -n code -- nproc           # 在 machine 内执行单条命令
+container machine list                           # 列出所有 machine，标记默认
+container machine inspect code                   # 查看配置与状态（JSON）
+container machine logs -n code                   # 查看日志（--boot 看引导日志，--follow 跟随）
+container machine set -n code cpus=4 memory=8G   # 调整配置（重启后生效）
+container machine set-default code               # 设为默认 machine
+container machine stop code                      # 停止
+container machine delete code                    # 删除（会先停止）
+```
+
+参考 [container-machine 文档](https://github.com/apple/container/blob/main/docs/container-machine.md)与[命令参考](https://github.com/apple/container/blob/main/docs/command-reference.md#container-machine-management)。
 
 ### CI/CD 使用
 
