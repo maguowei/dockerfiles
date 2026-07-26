@@ -12,7 +12,7 @@
 
 ### 继承自 base 镜像
 
-- zsh + oh-my-zsh + starship + 补全插件
+- zsh + starship + 补全插件（autosuggestions / syntax-highlighting / completions）
 - Node.js 22 LTS、Python 3.14、Go（最新版）
 - eza、bat、fd、ripgrep、fzf、zoxide 等现代 CLI 工具
 
@@ -20,14 +20,7 @@
 
 ### 本地开发（挂载代码目录）
 
-```bash
-docker run -it --rm \
-  -v $(pwd):/workspace \
-  -w /workspace \
-  maguowei/code
-```
-
-### 挂载 API Key
+挂载当前目录并注入 API Key：
 
 ```bash
 docker run -it --rm \
@@ -44,8 +37,10 @@ docker run -it --rm \
 
 ```bash
 container image pull maguowei/code
-container machine <name> maguowei/code
+container machine create maguowei/code --name code
 ```
+
+首次启动时镜像内的 `/etc/machine/create-user.sh` 会接管用户创建，将登录 shell 设为 zsh 并带上 base 的 `.zshrc`——登录进去即是配好的 zsh。
 
 参考 [container-machine 文档](https://github.com/apple/container/blob/main/docs/container-machine.md)。
 
