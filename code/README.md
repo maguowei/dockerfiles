@@ -20,8 +20,6 @@
 
 ### 本地开发（挂载代码目录）
 
-挂载当前目录并注入 API Key：
-
 ```bash
 docker run -it --rm \
   -v $(pwd):/workspace \
@@ -33,7 +31,7 @@ docker run -it --rm \
 
 ### 作为 Apple Container Machine
 
-镜像内置 systemd（`/sbin/init`）、SSH server 等组件，可在 macOS 上作为 [Apple container](https://github.com/apple/container) 的 machine 常驻运行，把它当作一台带完整 AI 工具链的开发机：
+镜像内置 systemd（`/sbin/init`）、SSH server 等组件，可在 macOS 上作为 [Apple container](https://github.com/apple/container) 的 machine 常驻运行：
 
 ```bash
 container image pull maguowei/code
@@ -45,22 +43,16 @@ container machine create maguowei/code --cpus 2 --memory 4G --name code --set-de
 常用管理命令：
 
 ```bash
-container machine run -n code                    # 进入交互 shell（省略 -n 用默认 machine）
-container machine run -n code -- nproc           # 在 machine 内执行单条命令
-container machine list                           # 列出所有 machine，标记默认
-container machine inspect code                   # 查看配置与状态（JSON）
-container machine logs -n code                   # 查看日志（--boot 看引导日志，--follow 跟随）
-container machine set -n code cpus=4 memory=8G   # 调整配置（重启后生效）
-container machine set-default code               # 设为默认 machine
-container machine stop code                      # 停止
-container machine delete code                    # 删除（会先停止）
+container machine run -n code                        # 进入交互 shell（省略 -n 用默认 machine）
+container machine run -n code -- nproc               # 在 machine 内执行单条命令
+container machine logs -n code                       # 查看日志（--boot 看引导日志，--follow 跟随）
+container machine set -n code cpus=4 memory=8G       # 调整配置（重启后生效）
+container machine set-default code                   # 设为默认 machine
 ```
 
 参考 [container-machine 文档](https://github.com/apple/container/blob/main/docs/container-machine.md)与[命令参考](https://github.com/apple/container/blob/main/docs/command-reference.md#container-machine-management)。
 
 ### CI/CD 使用
-
-在 GitHub Actions 中：
 
 ```yaml
 jobs:

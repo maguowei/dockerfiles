@@ -1,18 +1,14 @@
-# Surge snell
+# Surge Snell
 
-## Usage
+基于 Surge Snell 协议的代理服务镜像。
+
+## 使用
 
 ```bash
-# build
-docker build -t maguowei/surge-snell .
-# run
-docker run --name surge-snell -d --restart always -p 1984:1984 maguowei/surge-snell ${the_psk}
-
-# use Kubernetes
-kubectl run surge-snell --generator=run-pod/v1 --image=maguowei/surge-snell --restart=Always -- ${the_psk}
-kubectl expose pod surge-snell --port=1984 --type LoadBalancer
+docker run --name surge-snell -d --restart always -p 1984:1984 \
+  maguowei/surge-snell <psk>
 ```
 
-## Ref
+## 参考资料
 
 - [Snell Protocol](https://kb.nssurge.com/surge-knowledge-base/zh/release-notes/snell)

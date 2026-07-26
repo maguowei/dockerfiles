@@ -9,16 +9,14 @@ Go 镜像拆成两个显式基础镜像：
 
 ## 镜像说明
 
-### builder (`maguowei/go-builder:latest`)
-
+**builder**（`maguowei/go-builder:latest`）：
 - 基础镜像：`golang:1.26-alpine`
 - 默认 `CGO_ENABLED=0`
 - 内置 `build-go-app`，默认把二进制输出到 `/out/app`
 - 如果项目存在 `configs/` 目录，会一并复制到 `/out/configs/`
 - 通过 `ARG GOPROXY`、`ARG ALPINE_MIRROR` 覆盖网络环境，而不是写死国内源
 
-### app (`maguowei/go-app:latest`)
-
+**app**（`maguowei/go-app:latest`）：
 - 基础镜像：`alpine:3.21`
 - 运行时仅保留 `ca-certificates` 和 `tzdata`
 - 固定非 root 用户 `app`（uid/gid `10001`）

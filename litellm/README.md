@@ -1,6 +1,6 @@
 # LiteLLM Proxy
 
-基于 LiteLLM 的通用 LLM 代理服务，可以将任何 LLM 模型（Claude、GPT、Gemini、Kimi 等）转换为 Claude API 兼容的接口，方便 Claude Code 接入使用。
+基于 LiteLLM 的通用 LLM 代理服务，可以将任何 LLM 模型（Claude、GPT、Gemini、Kimi 等）转换为 OpenAI / Anthropic 兼容接口。
 
 ## 快速开始
 
@@ -30,49 +30,25 @@ docker run -d \
 curl -X POST 'http://localhost:4000/chat/completions' \
   -H 'Content-Type: application/json' \
   -H 'Authorization: Bearer sk-1234' \
-  -d '{
-    "model": "Kimi-K2.5",
-    "messages": [
-      {
-        "role": "user",
-        "content": "你好，请介绍一下你自己"
-      }
-    ]
-  }'
-```
+  -d '{"model": "Kimi-K2.5", "messages": [{"role": "user", "content": "你好"}]}'
 
-```bash
 # anthropic 协议
-curl -X POST "http://localhost:4000/v1/messages" \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: sk-1234" \
-  -H "anthropic-version: 2023-06-01" \
-  -d '{
-    "model": "Kimi-K2.5",
-    "max_tokens": 1024,
-    "messages": [
-      {
-        "role": "user",
-        "content": [
-          {
-            "type": "text",
-            "text": "你好，请介绍一下你自己"
-          }
-        ]
-      }
-    ]
-  }'
+curl -X POST 'http://localhost:4000/v1/messages' \
+  -H 'Content-Type: application/json' \
+  -H 'x-api-key: sk-1234' \
+  -H 'anthropic-version: 2023-06-01' \
+  -d '{"model": "Kimi-K2.5", "max_tokens": 1024, "messages": [{"role": "user", "content": [{"type": "text", "text": "你好"}]}]}'
 ```
 
 ## 配置说明
 
 ### 环境变量
 
-**必需：**
-
-- `AZURE_API_BASE`: Azure OpenAI 端点地址（例如：`https://xxxx.openai.azure.com`）
-- `AZURE_API_KEY`: Azure API 密钥
-- `LITELLM_MASTER_KEY`: LiteLLM Proxy 主密钥（用于 API 认证，必须以 `sk-` 开头）
+| 变量 | 必需 | 说明 |
+|------|------|------|
+| AZURE_API_BASE | 是 | Azure OpenAI 端点地址 |
+| AZURE_API_KEY | 是 | Azure API 密钥 |
+| LITELLM_MASTER_KEY | 是 | LiteLLM Proxy 主密钥，必须以 `sk-` 开头 |
 
 ## 参考资料
 
