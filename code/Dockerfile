@@ -30,6 +30,12 @@ RUN >/etc/machine-id \
         networkd-dispatcher.service \
     && sed -i -e 's/^AcceptEnv LANG LC_\*$/#AcceptEnv LANG LC_*/' /etc/ssh/sshd_config
 
+# container machine 用户默认使用 zsh：把 base 的 .zshrc 铺进 /etc/skel（新用户 home 模板），
+# 并安装自定义 provisioning 钩子，把登录 shell 设为 zsh（默认 provisioner 硬编码 bash）
+RUN cp /root/.zshrc /etc/skel/.zshrc
+COPY create-user.sh /etc/machine/create-user.sh
+RUN chmod +x /etc/machine/create-user.sh
+
 # AI 编程工具（npm 全局安装）
 RUN npm install -g \
     @anthropic-ai/claude-code \
