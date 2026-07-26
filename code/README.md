@@ -38,6 +38,17 @@ docker run -it --rm \
   maguowei/code
 ```
 
+### 作为 Apple Container Machine
+
+镜像内置 systemd（`/sbin/init`）、SSH server 等组件，可在 macOS 上作为 [Apple container](https://github.com/apple/container) 的 machine 常驻运行，把它当作一台带完整 AI 工具链的开发机：
+
+```bash
+container image pull maguowei/code
+container machine <name> maguowei/code
+```
+
+参考 [container-machine 文档](https://github.com/apple/container/blob/main/docs/container-machine.md)。
+
 ### CI/CD 使用
 
 在 GitHub Actions 中：
