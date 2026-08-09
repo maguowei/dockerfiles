@@ -7,8 +7,8 @@
 ### AI 工具
 
 - [Claude Code](https://github.com/anthropics/claude-code) - Anthropic 官方 AI 编程助手 CLI
-- [OpenCode](https://opencode.ai) - 开源 AI 编程助手 CLI
 - [Codex](https://github.com/openai/codex) - OpenAI Codex CLI
+- [Pi](https://pi.dev/) - 开源可定制 AI 编程助手 CLI（BYOK，多 provider）
 
 ### 继承自 base 镜像
 

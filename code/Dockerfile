@@ -39,7 +39,7 @@ RUN chmod +x /etc/machine/create-user.sh
 # AI 编程工具（npm 全局安装）
 RUN npm install -g \
     @anthropic-ai/claude-code \
-    opencode-ai \
-    @openai/codex
+    @openai/codex \
+    @earendil-works/pi-coding-agent
 
 CMD ["zsh"]
