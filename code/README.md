@@ -9,6 +9,7 @@
 - [Claude Code](https://github.com/anthropics/claude-code) - Anthropic 官方 AI 编程助手 CLI
 - [Codex](https://github.com/openai/codex) - OpenAI Codex CLI
 - [Pi](https://pi.dev/) - 开源可定制 AI 编程助手 CLI（BYOK，多 provider）
+- [herdr](https://herdr.dev/) - AI agent 常驻会话运行时，断线或合盖后会话不中断，可从任意设备重连
 
 ### 继承自 base 镜像
 

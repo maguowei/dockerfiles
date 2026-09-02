@@ -42,4 +42,9 @@ RUN npm install -g \
     @openai/codex \
     @earendil-works/pi-coding-agent
 
+# herdr：AI agent 常驻会话运行时
+# 官方 install.sh 按 uname 自动选择架构并校验 sha256；装到 /usr/local/bin 供全部用户共用
+RUN HERDR_INSTALL_DIR=/usr/local/bin sh -c "$(curl -fsSL https://herdr.dev/install.sh)" \
+    && herdr --version
+
 CMD ["zsh"]
