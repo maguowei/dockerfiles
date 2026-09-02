@@ -9,5 +9,6 @@
 [![go](https://github.com/maguowei/dockerfiles/actions/workflows/go.yaml/badge.svg)](https://github.com/maguowei/dockerfiles/actions/workflows/go.yaml)
 [![litellm](https://github.com/maguowei/dockerfiles/actions/workflows/litellm.yaml/badge.svg)](https://github.com/maguowei/dockerfiles/actions/workflows/litellm.yaml)
 [![python](https://github.com/maguowei/dockerfiles/actions/workflows/python.yaml/badge.svg)](https://github.com/maguowei/dockerfiles/actions/workflows/python.yaml)
+[![superset](https://github.com/maguowei/dockerfiles/actions/workflows/superset.yaml/badge.svg)](https://github.com/maguowei/dockerfiles/actions/workflows/superset.yaml)
 [![surge-snell](https://github.com/maguowei/dockerfiles/actions/workflows/surge-snell.yaml/badge.svg)](https://github.com/maguowei/dockerfiles/actions/workflows/surge-snell.yaml)
 [![v2ray](https://github.com/maguowei/dockerfiles/actions/workflows/v2ray.yaml/badge.svg)](https://github.com/maguowei/dockerfiles/actions/workflows/v2ray.yaml)
