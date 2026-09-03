@@ -12,8 +12,9 @@ make build-superset
 
 ### 2. 运行服务
 
+单容器方式，metadata 存 SQLite，适合本地试用：
+
 ```bash
-# 持久化 metadata（默认 SQLite 存于 /app/superset_home）
 docker volume create superset_home
 
 # 生成固定 SECRET_KEY，只需生成一次并妥善保存
@@ -27,6 +28,8 @@ docker run -d \
   --restart unless-stopped \
   maguowei/superset
 ```
+
+生产环境改用 MySQL + Redis，见下方[生产部署](#生产部署mysql--redis)。
 
 ### 3. 初始化（仅首次）
 
@@ -44,6 +47,118 @@ docker exec -it superset superset init
 ```
 
 访问 http://localhost:8088 登录，界面默认为中文。
+
+## 生产部署（MySQL + Redis）
+
+默认的 SQLite 只支持单进程写入，文件系统缓存也无法在多 worker 间共享，仅适合单容器试用。
+生产环境需换成 MySQL 存 metadata、Redis 做缓存。
+
+### 使用 docker compose
+
+`docker-compose.yaml` 已编排好 MySQL 8.4、Redis 7 与 Superset。先准备 `.env`：
+
+```bash
+cd superset
+
+cat > .env <<'EOF'
+SUPERSET_SECRET_KEY=
+MYSQL_ROOT_PASSWORD=
+DATABASE_DB=superset
+DATABASE_USER=superset
+DATABASE_PASSWORD=
+SUPERSET_PORT=8088
+EOF
+
+# 填入 SECRET_KEY 与两个密码
+openssl rand -base64 42
+```
+
+`.env` 含明文密码，不要提交到版本库。
+
+启动并初始化：
+
+```bash
+docker compose up -d
+
+docker compose exec superset superset db upgrade
+docker compose exec superset superset fab create-admin \
+  --username admin --firstname Admin --lastname Admin \
+  --email admin@example.com --password admin
+docker compose exec superset superset init
+```
+
+`worker` 和 `beat` 两个服务用于 SQL Lab 异步查询、定时任务和告警报表。不需要这些功能可从
+compose 文件中删掉，Superset 本身不依赖它们。
+
+### 接入已有的 MySQL 与 Redis
+
+配置文件通过环境变量启用，设置 `DATABASE_HOST` 即切到 MySQL，设置 `REDIS_HOST` 即启用 Redis 缓存：
+
+```bash
+docker run -d \
+  --name superset \
+  -p 8088:8088 \
+  -v superset_home:/app/superset_home \
+  -e SUPERSET_SECRET_KEY="..." \
+  -e DATABASE_HOST=mysql.internal \
+  -e DATABASE_USER=superset \
+  -e DATABASE_PASSWORD=... \
+  -e DATABASE_DB=superset \
+  -e REDIS_HOST=redis.internal \
+  maguowei/superset
+```
+
+metadata 库需预先建好，字符集用 `utf8mb4`：
+
+```sql
+CREATE DATABASE superset CHARACTER SET utf8mb4;
+CREATE USER 'superset'@'%' IDENTIFIED BY '密码';
+GRANT ALL PRIVILEGES ON superset.* TO 'superset'@'%';
+FLUSH PRIVILEGES;
+```
+
+不要显式指定 `COLLATE utf8mb4_unicode_ci`。Superset 的 `uuid` 列是 `binary(16)`，
+在该 collation 下与字符串列比较会触发 MySQL 1267 `Illegal mix of collations`，
+导致数据库、图表等列表页直接 500（[apache/superset#29483][issue-29483]）。
+用 MySQL 8 的默认 `utf8mb4_0900_ai_ci` 即可，compose 文件里也只设了 charset。
+
+[issue-29483]: https://github.com/apache/superset/issues/29483
+
+也可以用 `SUPERSET__SQLALCHEMY_DATABASE_URI` 直接给完整连接串，它在配置文件加载后生效，
+优先级最高，适合需要额外连接参数的场景。
+
+### Redis 分库用途
+
+配置文件按用途分库，避免 key 冲突：
+
+| DB | 用途 |
+|----|------|
+| 0 | Celery broker / result backend |
+| 1 | CACHE_CONFIG，元数据缓存 |
+| 2 | DATA_CACHE_CONFIG，图表查询结果 |
+| 3 | FILTER_STATE_CACHE_CONFIG，dashboard 筛选器状态 |
+| 4 | EXPLORE_FORM_DATA_CACHE_CONFIG，图表编辑参数 |
+| 5 | 限流计数器 |
+| 6 | SQL Lab 异步查询结果 |
+
+其中 3、4 两项官方要求生产环境必须配置 —— 不配会退化为内存存储，多 worker 下用户的筛选器
+状态和图表参数会随机丢失。
+
+### 从 SQLite 迁移已有数据
+
+metadata 迁移没有官方内置命令，推荐用导出导入搬运资产：
+
+```bash
+# 旧容器导出 dashboard（含依赖的 chart 与 dataset）
+docker exec superset superset export-dashboards -f /tmp/dash.zip
+docker cp superset:/tmp/dash.zip .
+
+# 新环境完成 db upgrade / create-admin / init 后导入
+docker cp dash.zip superset-new:/tmp/
+docker exec superset-new superset import-dashboards -p /tmp/dash.zip
+```
+
+数据库连接的密码不会随导出带出，导入后需在 UI 里重填。用户账号和权限也不在导出范围内。
 
 ## 连接 MySQL 数据源
 
@@ -71,9 +186,18 @@ mysql+pymysql://user:password@host:3306/dbname    # PyMySQL，纯 Python 实现
 
 ### 环境变量
 
-| 变量 | 必需 | 说明 |
-|------|------|------|
-| SUPERSET_SECRET_KEY | 是 | 会话加密密钥，必须固定，变更会导致已存凭据失效 |
+| 变量 | 必需 | 默认值 | 说明 |
+|------|------|--------|------|
+| SUPERSET_SECRET_KEY | 是 | — | 会话加密密钥，必须固定，变更会导致已存凭据失效 |
+| DATABASE_HOST | 否 | — | 设置后 metadata 改用 MySQL，未设置则用 SQLite |
+| DATABASE_PORT | 否 | 3306 | MySQL 端口 |
+| DATABASE_DB | 否 | superset | metadata 库名 |
+| DATABASE_USER | 否 | superset | MySQL 用户 |
+| DATABASE_PASSWORD | 否 | 空 | MySQL 密码 |
+| REDIS_HOST | 否 | — | 设置后启用 Redis 缓存与 Celery，未设置则用内存/文件缓存 |
+| REDIS_PORT | 否 | 6379 | Redis 端口 |
+| REDIS_PASSWORD | 否 | 空 | Redis 密码 |
+| SUPERSET__SQLALCHEMY_DATABASE_URI | 否 | — | 完整 metadata 连接串，优先级高于上述 DATABASE_* |
 
 ### 自定义配置
 
@@ -96,6 +220,12 @@ mysql+pymysql://user:password@host:3306/dbname    # PyMySQL，纯 Python 实现
   `default-libmysqlclient-dev`、`pkg-config` 编译后清理，但运行时共享库 `libmariadb3` 必须显式
   `apt-mark manual` 保留，否则会被 `--auto-remove` 删掉，导致 `import MySQLdb` 报缺
   `libmariadb.so.3`。
+
+- metadata 用 MySQL 时不要把 collation 设成 `utf8mb4_unicode_ci`，会导致列表页 500，
+  原因见上方[接入已有的 MySQL 与 Redis](#接入已有的-mysql-与-redis)。
+
+- 首次启动时 `superset db upgrade` 还没执行，日志会出现几条
+  `Table 'superset.themes' doesn't exist`，属正常现象，建表完成后不再出现。
 
 ## 参考资料
 

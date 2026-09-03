@@ -4,3 +4,8 @@
 
 # Claude Code
 .claude/settings.local.json
+
+# 本地环境变量，含明文密码
+.env
+.env.*
+!.env.example

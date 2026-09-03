@@ -1,0 +1,104 @@
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?required}
+      MYSQL_DATABASE: ${DATABASE_DB:-superset}
+      MYSQL_USER: ${DATABASE_USER:-superset}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:?required}
+    command:
+      # 仅设 charset，不要指定 collation-server。显式设成 utf8mb4_unicode_ci 会让
+      # Superset 的 binary(16) uuid 列在比较时报 1267 Illegal mix of collations，
+      # 数据库列表等页面直接 500（apache/superset#29483）
+      - --character-set-server=utf8mb4
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  superset:
+    image: maguowei/superset
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${SUPERSET_PORT:-8088}:8088"
+    environment:
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?required}
+      DATABASE_HOST: db
+      DATABASE_PORT: "3306"
+      DATABASE_DB: ${DATABASE_DB:-superset}
+      DATABASE_USER: ${DATABASE_USER:-superset}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?required}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    volumes:
+      - superset_home:/app/superset_home
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # SQL Lab 异步查询、定时任务与告警需要 worker；不用可整段删除
+  worker:
+    image: maguowei/superset
+    build: .
+    restart: unless-stopped
+    command: ["celery", "--app=superset.tasks.celery_app:app", "worker", "--loglevel=INFO"]
+    environment:
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?required}
+      DATABASE_HOST: db
+      DATABASE_PORT: "3306"
+      DATABASE_DB: ${DATABASE_DB:-superset}
+      DATABASE_USER: ${DATABASE_USER:-superset}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?required}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    volumes:
+      - superset_home:/app/superset_home
+    # 必须等 superset 就绪：并发启动会同时尝试建表，触发
+    # "Table 'ab_permission' already exists" 并中断初始化
+    depends_on:
+      superset:
+        condition: service_healthy
+
+  beat:
+    image: maguowei/superset
+    build: .
+    restart: unless-stopped
+    command: ["celery", "--app=superset.tasks.celery_app:app", "beat", "--loglevel=INFO"]
+    environment:
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?required}
+      DATABASE_HOST: db
+      DATABASE_PORT: "3306"
+      DATABASE_DB: ${DATABASE_DB:-superset}
+      DATABASE_USER: ${DATABASE_USER:-superset}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?required}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    volumes:
+      - superset_home:/app/superset_home
+    depends_on:
+      superset:
+        condition: service_healthy
+
+volumes:
+  db_data:
+  redis_data:
+  superset_home:
