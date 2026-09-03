@@ -108,6 +108,38 @@ if REDIS_HOST:
     )
 
 # ---------------------------------------------------
+# MCP 服务（AI 客户端接入）
+# ---------------------------------------------------
+# 由 superset mcp run 启动的独立进程读取本段配置，与 web 进程共用同一份文件。
+
+# 对外访问地址。MCP 工具生成 explore / SQL Lab 链接时读
+# WEBDRIVER_BASEURL_USER_FRIENDLY，上游默认回落到 http://localhost:9001（开发端口），
+# 与本镜像的 8088 不符，会返回打不开的链接，故显式设置。
+SUPERSET_PUBLIC_URL = os.environ.get("SUPERSET_PUBLIC_URL", "http://localhost:8088")
+SUPERSET_WEBSERVER_ADDRESS = SUPERSET_PUBLIC_URL
+WEBDRIVER_BASEURL = f"{SUPERSET_PUBLIC_URL.rstrip('/')}/"
+WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
+
+# 所有 MCP 请求的执行身份。名字里的 DEV 有误导：6.1.0 里它是唯一的身份来源，
+# 即使开了 JWT 也一样 —— token 的 sub 不会映射到 Superset 用户（default_user_resolver
+# 在上游有定义但无调用点），g.user 只由此项设置。该用户的 RBAC/RLS 权限即为 AI 客户端
+# 的权限上限。必须写在配置文件里，设成同名环境变量不生效。
+_mcp_user = os.environ.get("MCP_DEV_USERNAME")
+if _mcp_user:
+    MCP_DEV_USERNAME = _mcp_user
+
+# JWT 门禁。设置 MCP_JWT_SECRET 即启用：无有效 Bearer token 的请求返回 401。
+# 注意它只做访问控制，不区分调用者身份（见上），因此不能替代多用户隔离。
+# 公网暴露时除本项外还必须套 TLS 反代。
+_mcp_jwt_secret = os.environ.get("MCP_JWT_SECRET")
+if _mcp_jwt_secret:
+    MCP_AUTH_ENABLED = True
+    MCP_JWT_ALGORITHM = "HS256"
+    MCP_JWT_SECRET = _mcp_jwt_secret
+    MCP_JWT_ISSUER = os.environ.get("MCP_JWT_ISSUER", "superset-mcp")
+    MCP_JWT_AUDIENCE = os.environ.get("MCP_JWT_AUDIENCE", "superset-mcp")
+
+# ---------------------------------------------------
 # 其他常用配置（按需开启）
 # ---------------------------------------------------
 # 上传 CSV / Excel 的临时目录

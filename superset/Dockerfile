@@ -26,6 +26,12 @@ RUN apt-get update \
     && apt-get purge -y --auto-remove build-essential default-libmysqlclient-dev pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
+# MCP（Model Context Protocol）服务依赖。上游把 fastmcp 放在 [fastmcp] extra 里，lean 镜像不含，
+# 缺失时 superset mcp run 会直接报 "fastmcp is not installed"。上游约束为 >=3.1.0,<4.0，
+# 这里固定小版本保证构建可复现，升级用 --build-arg FASTMCP_VERSION= 覆盖。
+ARG FASTMCP_VERSION=3.4.7
+RUN uv pip install --no-cache --python /app/.venv/bin/python "fastmcp==${FASTMCP_VERSION}"
+
 # 默认中文界面配置，官方镜像已将 /app/pythonpath 加入 PYTHONPATH
 COPY superset_config.py /app/pythonpath/superset_config.py
 

@@ -190,6 +190,163 @@ mysql+pymysql://user:password@host:3306/dbname    # PyMySQL，纯 Python 实现
 该 dialect 依赖 `MySQLdb` 模块。只装 PyMySQL 时它提供的是 `mysql+pymysql` dialect，
 不参与该检查，UI 的数据库列表就只会显示 PostgreSQL 和 SQLite。
 
+## AI 功能（MCP）
+
+Superset 5.0+ 内置 MCP（Model Context Protocol）服务，把 dashboard、chart、dataset 和 SQL Lab
+暴露成一组工具，供 Claude Code、Claude Desktop 等 AI 客户端用自然语言驱动：列数据集
+（`list_datasets`）、跑 SQL（`execute_sql`）、建图表（`generate_chart`）、生成 explore 链接
+（`generate_explore_link`）等 20 余个工具。
+
+该服务是独立进程，与 web 进程共用同一份 `superset_config.py` 和 metadata 库。本镜像已预装
+`fastmcp`（上游把它放在 `[fastmcp]` extra 里，官方 lean 镜像不含，缺失时 `superset mcp run`
+会直接报错退出）。
+
+### 使用 docker compose
+
+`.env` 追加三项：
+
+```bash
+cat >> .env <<'EOF'
+MCP_JWT_SECRET=
+MCP_DEV_USERNAME=admin
+SUPERSET_PUBLIC_URL=http://localhost:8088
+MCP_PORT=5008
+EOF
+
+# 生成 JWT 密钥填入 MCP_JWT_SECRET
+openssl rand -base64 32
+```
+
+`MCP_JWT_SECRET` 是必填项（compose 里用 `:?required` 强制），不配 MCP 端点就没有任何访问控制。
+`MCP_DEV_USERNAME` 指定所有 MCP 请求的执行身份，必须是已存在的 Superset 用户。
+
+```bash
+docker compose up -d
+docker compose logs mcp | tail -5   # 期望 Uvicorn running on http://0.0.0.0:5008
+```
+
+### 单容器方式
+
+```bash
+docker run -d \
+  --name superset-mcp \
+  -p 5008:5008 \
+  -v superset_home:/app/superset_home \
+  -e SUPERSET_SECRET_KEY="与 web 容器相同" \
+  -e MCP_DEV_USERNAME=admin \
+  -e MCP_JWT_SECRET="..." \
+  -e SUPERSET_PUBLIC_URL=http://localhost:8088 \
+  maguowei/superset \
+  superset mcp run --host 0.0.0.0 --port 5008
+```
+
+metadata 用 MySQL 时同样需要传 `DATABASE_*`，用 SQLite 时必须和 web 容器共享
+`superset_home` 卷。
+
+### 签发 token
+
+HS256 只需标准库：
+
+```python
+import base64, hmac, hashlib, json, time
+
+SECRET = "你的 MCP_JWT_SECRET"
+
+def b64(b): return base64.urlsafe_b64encode(b).rstrip(b"=")
+
+now = int(time.time())
+header = b64(json.dumps({"alg": "HS256", "typ": "JWT"}, separators=(",", ":")).encode())
+payload = b64(json.dumps({
+    "iss": "superset-mcp",      # 需与 MCP_JWT_ISSUER 一致
+    "aud": "superset-mcp",      # 需与 MCP_JWT_AUDIENCE 一致
+    "sub": "admin",
+    "iat": now,
+    "exp": now + 86400 * 30,
+}, separators=(",", ":")).encode())
+sig = b64(hmac.new(SECRET.encode(), header + b"." + payload, hashlib.sha256).digest())
+print((header + b"." + payload + b"." + sig).decode())
+```
+
+`sub` 填什么都不影响执行身份（见下方[限制](#限制)），但 `iss` 和 `aud` 必须匹配，否则 401。
+
+### 验证
+
+```bash
+# 无 token 应返回 401
+curl -s -o /dev/null -w '%{http_code}\n' -X POST http://localhost:5008/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"t","version":"1"}}}'
+
+# 带 token 查实例信息，应返回 current_user
+curl -s -X POST http://localhost:5008/mcp \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"get_instance_info","arguments":{}}}'
+```
+
+响应是 SSE 格式（`event: message` + `data: {...}`），不是普通 JSON。
+
+### 客户端接入
+
+Claude Code 在项目根目录建 `.mcp.json`：
+
+```json
+{
+  "mcpServers": {
+    "superset": {
+      "type": "url",
+      "url": "http://localhost:5008/mcp",
+      "headers": {
+        "Authorization": "Bearer 你的 token"
+      }
+    }
+  }
+}
+```
+
+Claude Desktop 不接受非 HTTPS 的直连 MCP，需用 `mcp-remote` 转发并附带请求头：
+
+```json
+{
+  "mcpServers": {
+    "superset": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote", "http://localhost:5008/mcp",
+        "--header", "Authorization:Bearer 你的 token"
+      ]
+    }
+  }
+}
+```
+
+### 限制
+
+Superset 6.1.0 的 MCP 实现有几处需要提前知道，否则容易误判：
+
+- **不做多用户身份映射。** 所有 MCP 请求都以 `MCP_DEV_USERNAME` 指定的同一个用户身份执行，
+  该用户的 RBAC/RLS 权限就是 AI 客户端的权限上限。JWT 的 `sub` 声明不会被解析成 Superset
+  用户 —— 上游 `mcp_service/mcp_config.py` 里的 `default_user_resolver` 有定义但无调用点，
+  `g.user` 只由 `MCP_DEV_USERNAME` 设置。所以 JWT 在这个版本里纯粹是 401 门禁，不能用来
+  区分调用者。若要按人隔离权限，只能一人一个 MCP 实例配不同的 `MCP_DEV_USERNAME`。
+
+- **`MCP_DEV_USERNAME` 必须落在配置文件里。** 设成同名环境变量后 Superset 读不到，工具调用会
+  报 `No authenticated user found`。本镜像的 `superset_config.py` 已做转发，所以 compose 和
+  `docker run` 里传环境变量是有效的；但如果你挂载了自己的配置文件，需要自行照抄这段逻辑。
+
+- **默认只列出 4 个工具。** `list_tools` 返回 `search_tools`、`call_tool`、`health_check`、
+  `get_instance_info`，其余工具靠 `search_tools` 按名字或用途搜索后经 `call_tool` 调用。这是
+  上游默认的省 token 策略（初始上下文从约 40k 降到 5-8k）。要一次暴露全部工具，在配置文件里加
+  `MCP_TOOL_SEARCH_CONFIG = {"enabled": False}`。
+
+- **图表预览没有图片格式。** `get_chart_preview` 的 `format` 只支持 `url`、`ascii`、`table`、
+  `vega_lite`。上游虽有 `mcp_service/screenshot/` 模块，但在 6.1.0 里没有 HTTP 路由也没有工具
+  引用它，属未接通状态，因此本镜像不装 headless Chrome。
+
+- **公网暴露必须套 TLS 反代。** MCP 端点是纯 HTTP，token 会明文传输。
+
 ## 配置说明
 
 ### 构建参数
@@ -197,6 +354,7 @@ mysql+pymysql://user:password@host:3306/dbname    # PyMySQL，纯 Python 实现
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
 | SUPERSET_VERSION | 6.1.0 | 上游 `apache/superset` 版本 |
+| FASTMCP_VERSION | 3.4.7 | MCP 服务依赖，上游约束为 `>=3.1.0,<4.0` |
 
 ### 环境变量
 
@@ -212,6 +370,11 @@ mysql+pymysql://user:password@host:3306/dbname    # PyMySQL，纯 Python 实现
 | REDIS_PORT | 否 | 6379 | Redis 端口 |
 | REDIS_PASSWORD | 否 | 空 | Redis 密码 |
 | SUPERSET__SQLALCHEMY_DATABASE_URI | 否 | — | 完整 metadata 连接串，优先级高于上述 DATABASE_* |
+| MCP_DEV_USERNAME | 否 | — | MCP 请求的执行身份，需为已存在的 Superset 用户；不设则所有工具调用报错 |
+| MCP_JWT_SECRET | 否 | — | 设置后 MCP 端点启用 JWT 门禁（HS256），无有效 token 返回 401 |
+| MCP_JWT_ISSUER | 否 | superset-mcp | token 的 `iss` 声明，不匹配则 401 |
+| MCP_JWT_AUDIENCE | 否 | superset-mcp | token 的 `aud` 声明，不匹配则 401 |
+| SUPERSET_PUBLIC_URL | 否 | http://localhost:8088 | 对外访问地址，MCP 工具生成 explore / SQL Lab 链接时使用 |
 
 ### 自定义配置
 
@@ -244,8 +407,13 @@ mysql+pymysql://user:password@host:3306/dbname    # PyMySQL，纯 Python 实现
 - 首次启动时 `superset db upgrade` 还没执行，日志会出现几条
   `Table 'superset.themes' doesn't exist`，属正常现象，建表完成后不再出现。
 
+- MCP 服务的执行身份由配置文件里的 `MCP_DEV_USERNAME` 决定，JWT 不做身份映射，
+  详见[限制](#限制)。
+
 ## 参考资料
 
 - [Superset 官方文档](https://superset.apache.org/docs/intro)
 - [Docker 镜像使用说明](https://superset.apache.org/docs/quickstart)
 - [数据库驱动依赖列表](https://superset.apache.org/docs/configuration/databases)
+- [MCP 服务部署与认证](https://superset.apache.org/admin-docs/configuration/mcp-server/)
+- [在 Superset 中使用 AI](https://superset.apache.org/user-docs/using-superset/using-ai-with-superset/)

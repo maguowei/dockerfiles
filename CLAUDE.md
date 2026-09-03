@@ -18,7 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **v2ray**: V2Ray 代理工具镜像
 - **elasticsearch**: Elasticsearch 搜索引擎镜像
 - **litellm**: LiteLLM 统一 LLM API 代理镜像
-- **superset**: Apache Superset BI 平台镜像（预装 MySQL 驱动、默认中文界面）
+- **superset**: Apache Superset BI 平台镜像（预装 MySQL 驱动、默认中文界面、内置 MCP 服务）
 - **code**: 代码开发环境镜像
 
 每个镜像目录包含:

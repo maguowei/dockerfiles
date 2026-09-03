@@ -98,6 +98,36 @@ services:
       superset:
         condition: service_healthy
 
+  # MCP 服务，供 Claude Code 等 AI 客户端接入；不用可整段删除
+  mcp:
+    image: maguowei/superset
+    build: .
+    restart: unless-stopped
+    command: ["superset", "mcp", "run", "--host", "0.0.0.0", "--port", "5008"]
+    ports:
+      - "${MCP_PORT:-5008}:5008"
+    environment:
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?required}
+      DATABASE_HOST: db
+      DATABASE_PORT: "3306"
+      DATABASE_DB: ${DATABASE_DB:-superset}
+      DATABASE_USER: ${DATABASE_USER:-superset}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?required}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      # 所有 MCP 请求的执行身份，需为已存在的 Superset 用户
+      MCP_DEV_USERNAME: ${MCP_DEV_USERNAME:-admin}
+      # 强制填写：不配就没有 401 门禁，MCP 端点等于裸奔
+      MCP_JWT_SECRET: ${MCP_JWT_SECRET:?required}
+      # AI 客户端拿到的 explore / SQL Lab 链接以此为前缀
+      SUPERSET_PUBLIC_URL: ${SUPERSET_PUBLIC_URL:-http://localhost:8088}
+    volumes:
+      - superset_home:/app/superset_home
+    # 与 worker / beat 同理：必须等 superset 完成建表，否则并发初始化会冲突
+    depends_on:
+      superset:
+        condition: service_healthy
+
 volumes:
   db_data:
   redis_data:
