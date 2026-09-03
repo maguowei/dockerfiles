@@ -245,12 +245,18 @@ metadata 用 MySQL 时同样需要传 `DATABASE_*`，用 SQLite 时必须和 web
 
 ### 签发 token
 
-HS256 只需标准库：
+`MCP_JWT_SECRET` 是服务端的签名密钥，token 是用它签出来的凭证 —— 两者不能互换。
+把 token 填进 `MCP_JWT_SECRET`（或反过来）会让所有请求返回 `invalid_token`。
 
-```python
-import base64, hmac, hashlib, json, time
+密钥从环境变量读，避免占位符没替换就跑：
 
-SECRET = "你的 MCP_JWT_SECRET"
+```bash
+export MCP_JWT_SECRET=$(openssl rand -base64 32)   # 与启动 MCP 服务时用的值必须一致
+
+python3 <<'PY'
+import base64, hmac, hashlib, json, os, time
+
+SECRET = os.environ["MCP_JWT_SECRET"]
 
 def b64(b): return base64.urlsafe_b64encode(b).rstrip(b"=")
 
@@ -265,6 +271,14 @@ payload = b64(json.dumps({
 }, separators=(",", ":")).encode())
 sig = b64(hmac.new(SECRET.encode(), header + b"." + payload, hashlib.sha256).digest())
 print((header + b"." + payload + b"." + sig).decode())
+PY
+```
+
+把输出存进 `TOKEN` 供后续验证使用（需与 curl 在同一 shell 会话，否则请求不带
+`Authorization` 头，返回体为空）：
+
+```bash
+export TOKEN='上一步输出的 token'
 ```
 
 `sub` 填什么都不影响执行身份（见下方[限制](#限制)），但 `iss` 和 `aud` 必须匹配，否则 401。
@@ -321,6 +335,16 @@ Claude Desktop 不接受非 HTTPS 的直连 MCP，需用 `mcp-remote` 转发并�
   }
 }
 ```
+
+### 常见错误
+
+| 症状 | 原因 |
+|------|------|
+| `{"error": "invalid_token"}` | `MCP_JWT_SECRET` 与签 token 用的密钥不一致。最常见的是把 token 本身填进了 `MCP_JWT_SECRET`，或签发脚本里的密钥占位符没替换 |
+| 响应体完全为空 | 请求没带 `Authorization` 头，通常是 `$TOKEN` 变量在当前 shell 里为空 |
+| HTTP 401 但 token 是新签的 | `iss` / `aud` 与 `MCP_JWT_ISSUER` / `MCP_JWT_AUDIENCE` 不匹配 |
+| `No authenticated user found` | token 已通过校验，但 `MCP_DEV_USERNAME` 指定的用户在 metadata 库里不存在 |
+| explore 链接指向 `localhost:9001` | `SUPERSET_PUBLIC_URL` 未生效，检查是否挂载了自己的配置文件覆盖了镜像内置的那份 |
 
 ### 限制
 
