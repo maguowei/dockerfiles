@@ -50,8 +50,8 @@ docker exec -it superset superset init
 
 ## 生产部署（MySQL + Redis）
 
-默认的 SQLite 只支持单进程写入，文件系统缓存也无法在多 worker 间共享，仅适合单容器试用。
-生产环境需换成 MySQL 存 metadata、Redis 做缓存。
+默认的 SQLite 只支持单进程写入，且图表查询完全没有缓存（上游默认 `NullCache`），
+仅适合单容器试用。生产环境需换成 MySQL 存 metadata、Redis 做缓存。
 
 ### 使用 docker compose
 
@@ -141,8 +141,22 @@ FLUSH PRIVILEGES;
 | 5 | 限流计数器 |
 | 6 | SQL Lab 异步查询结果 |
 
-其中 3、4 两项官方要求生产环境必须配置 —— 不配会退化为内存存储，多 worker 下用户的筛选器
-状态和图表参数会随机丢失。
+### 不配 Redis 时的默认行为
+
+未设置 `REDIS_HOST` 时沿用上游默认值：
+
+| 配置项 | 默认后端 | 实际行为 |
+|--------|----------|----------|
+| CACHE_CONFIG | NullCache | 完全不缓存 |
+| DATA_CACHE_CONFIG | NullCache | 完全不缓存，图表每次都查底层库 |
+| FILTER_STATE_CACHE_CONFIG | SupersetMetastoreCache | 存 metadata 库的 `key_value` 表 |
+| EXPLORE_FORM_DATA_CACHE_CONFIG | SupersetMetastoreCache | 同上 |
+| RESULTS_BACKEND | None | SQL Lab 异步查询不可用 |
+| RATELIMIT_STORAGE_URI | None | flask-limiter 用内存并在启动时告警 |
+
+筛选器状态与图表参数默认落在 metadata 库，多 worker 下不会丢；配 Redis 的收益是减少
+metadata 库压力和降低延迟。而图表查询默认真的没有缓存，dashboard 每次打开都会重跑全部
+SQL —— 这是配 Redis 最主要的动机。SQL Lab 异步查询和定时告警报表则必须有 Redis 才能用。
 
 ### 从 SQLite 迁移已有数据
 
@@ -194,7 +208,7 @@ mysql+pymysql://user:password@host:3306/dbname    # PyMySQL，纯 Python 实现
 | DATABASE_DB | 否 | superset | metadata 库名 |
 | DATABASE_USER | 否 | superset | MySQL 用户 |
 | DATABASE_PASSWORD | 否 | 空 | MySQL 密码 |
-| REDIS_HOST | 否 | — | 设置后启用 Redis 缓存与 Celery，未设置则用内存/文件缓存 |
+| REDIS_HOST | 否 | — | 设置后启用 Redis 缓存与 Celery，未设置则不缓存查询结果 |
 | REDIS_PORT | 否 | 6379 | Redis 端口 |
 | REDIS_PASSWORD | 否 | 空 | Redis 密码 |
 | SUPERSET__SQLALCHEMY_DATABASE_URI | 否 | — | 完整 metadata 连接串，优先级高于上述 DATABASE_* |
@@ -209,7 +223,7 @@ mysql+pymysql://user:password@host:3306/dbname    # PyMySQL，纯 Python 实现
 
 ## 注意事项
 
-- 默认使用 SQLite 存储 metadata 与文件系统缓存，仅适合单容器场景；生产环境应改用外部 PostgreSQL/MySQL 与 Redis。
+- 默认用 SQLite 存 metadata 且不缓存查询结果，仅适合单容器场景；生产环境应改用 MySQL/PostgreSQL 与 Redis。
 - 上游运行环境为 `/app/.venv`，追加 Python 包需指定该解释器，否则会装进系统 Python 而不被 Superset 加载：
 
   ```dockerfile
@@ -223,6 +237,9 @@ mysql+pymysql://user:password@host:3306/dbname    # PyMySQL，纯 Python 实现
 
 - metadata 用 MySQL 时不要把 collation 设成 `utf8mb4_unicode_ci`，会导致列表页 500，
   原因见上方[接入已有的 MySQL 与 Redis](#接入已有的-mysql-与-redis)。
+
+- `SQLALCHEMY_ENGINE_OPTIONS` 里的连接池参数只在 MySQL 模式下设置。SQLite 用 NullPool，
+  传 `pool_size` / `max_overflow` 会让 `create_engine` 抛 TypeError，容器无法启动。
 
 - 首次启动时 `superset db upgrade` 还没执行，日志会出现几条
   `Table 'superset.themes' doesn't exist`，属正常现象，建表完成后不再出现。

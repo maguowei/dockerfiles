@@ -26,18 +26,22 @@ if os.environ.get("DATABASE_HOST"):
         "?charset=utf8mb4"
     )
 
-# 连接池：MySQL 默认 8 小时空闲断连，pool_recycle 必须小于该值
-SQLALCHEMY_ENGINE_OPTIONS = {
-    "pool_pre_ping": True,
-    "pool_recycle": 3600,
-    "pool_size": 10,
-    "max_overflow": 20,
-}
+    # 连接池仅适用于 MySQL：SQLite 走 NullPool，传 pool_size/max_overflow 会让
+    # create_engine 抛 TypeError，容器起不来。
+    # pool_recycle 必须小于 MySQL 的 wait_timeout（默认 8 小时）以避免空闲断连。
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": 3600,
+        "pool_size": 10,
+        "max_overflow": 20,
+    }
 
 # ---------------------------------------------------
 # Redis 缓存
 # ---------------------------------------------------
-# 设置 REDIS_HOST 即启用；未设置时回退到上游默认的文件系统/内存缓存。
+# 设置 REDIS_HOST 即启用。未设置时沿用上游默认：CACHE_CONFIG 与 DATA_CACHE_CONFIG
+# 为 NullCache（完全不缓存，图表每次都查库），筛选器状态与图表参数存 metadata 库的
+# key_value 表，RESULTS_BACKEND 为 None（SQL Lab 异步查询不可用）。
 REDIS_HOST = os.environ.get("REDIS_HOST")
 
 if REDIS_HOST:
@@ -61,7 +65,8 @@ if REDIS_HOST:
         "CACHE_KEY_PREFIX": "superset_data_",
         "CACHE_REDIS_URL": _redis_url(2),
     }
-    # 以下两项官方要求生产环境必须配置，否则筛选器状态和图表参数存内存，多 worker 会丢
+    # 以下两项默认存 metadata 库（SupersetMetastoreCache），改用 Redis 可减少
+    # metadata 库压力并降低读写延迟
     FILTER_STATE_CACHE_CONFIG = {
         "CACHE_TYPE": "RedisCache",
         "CACHE_DEFAULT_TIMEOUT": 86400,
