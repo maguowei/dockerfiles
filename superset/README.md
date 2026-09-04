@@ -55,25 +55,26 @@ docker exec -it superset superset init
 
 ### 使用 docker compose
 
-`docker-compose.yaml` 已编排好 MySQL 8.4、Redis 7 与 Superset。先准备 `.env`：
+`docker-compose.yaml` 已编排好 MySQL 8.4、Redis 7、Superset 以及 worker、beat、mcp。
+先从模板生成 `.env`：
 
 ```bash
 cd superset
-
-cat > .env <<'EOF'
-SUPERSET_SECRET_KEY=
-MYSQL_ROOT_PASSWORD=
-DATABASE_DB=superset
-DATABASE_USER=superset
-DATABASE_PASSWORD=
-SUPERSET_PORT=8088
-EOF
-
-# 填入 SECRET_KEY 与两个密码
-openssl rand -base64 42
+cp .env.example .env
 ```
 
-`.env` 含明文密码，不要提交到版本库。
+模板里标了「必填」的四项必须填，缺任意一项 `docker compose up` 会直接报
+`required variable ... is missing a value`（compose 里用 `:?required` 强制）：
+
+| 变量 | 生成方式 |
+|------|----------|
+| SUPERSET_SECRET_KEY | `openssl rand -base64 42` |
+| MYSQL_ROOT_PASSWORD | `openssl rand -base64 24` |
+| DATABASE_PASSWORD | `openssl rand -base64 24` |
+| MCP_JWT_SECRET | `openssl rand -base64 32` |
+
+其余项（库名、用户名、宿主机端口、`MCP_DEV_USERNAME`、`SUPERSET_PUBLIC_URL`）都有默认值，
+按需取消注释覆盖即可。`.env` 含明文密码，已被 `.gitignore` 排除，不要提交到版本库。
 
 启动并初始化：
 
@@ -89,6 +90,17 @@ docker compose exec superset superset init
 
 `worker` 和 `beat` 两个服务用于 SQL Lab 异步查询、定时任务和告警报表。不需要这些功能可从
 compose 文件中删掉，Superset 本身不依赖它们。
+
+这三个非 web 服务的健康检查都在 compose 里做了调整，原因值得留意：
+
+- `worker` 换成 `celery inspect ping`。镜像内置的 `HEALTHCHECK` 是 curl web 端口，worker
+  不跑 web server，沿用会永久 unhealthy。ping 需要加载 superset app，故 `start_period` 留了 120s。
+- `beat` 和 `mcp` 直接 `healthcheck: disable: true`。beat 没有 worker 那样的 inspect 接口；
+  mcp 监听 5008 且只挂 `/mcp` 一条 streamable-http 路由、没有 `/health`，stateless 下
+  `GET /mcp` 恒回 405。两者崩了容器直接退出，`restart` 策略比假 healthy 更可靠。
+- `beat` 的 `--schedule` 必须显式指向 `/app/superset_home/`。默认写到 WORKDIR（`/app`，
+  root:root 0755），容器以 uid 1000 运行，开 shelve 直接 `Errno 13`，且 celery 会误判成
+  文件损坏反复重试。
 
 ### 接入已有的 MySQL 与 Redis
 
@@ -203,22 +215,11 @@ Superset 5.0+ 内置 MCP（Model Context Protocol）服务，把 dashboard、cha
 
 ### 使用 docker compose
 
-`.env` 追加三项：
-
-```bash
-cat >> .env <<'EOF'
-MCP_JWT_SECRET=
-MCP_DEV_USERNAME=admin
-SUPERSET_PUBLIC_URL=http://localhost:8088
-MCP_PORT=5008
-EOF
-
-# 生成 JWT 密钥填入 MCP_JWT_SECRET
-openssl rand -base64 32
-```
+`mcp` 服务已在 compose 里编排好，相关变量都在 `.env.example` 模板中：`MCP_JWT_SECRET`
+（必填）、`MCP_DEV_USERNAME`、`SUPERSET_PUBLIC_URL`、`MCP_PORT`。
 
 `MCP_JWT_SECRET` 是必填项（compose 里用 `:?required` 强制），不配 MCP 端点就没有任何访问控制。
-`MCP_DEV_USERNAME` 指定所有 MCP 请求的执行身份，必须是已存在的 Superset 用户。
+`MCP_DEV_USERNAME` 指定所有 MCP 请求的执行身份，必须是已存在的 Superset 用户，默认 `admin`。
 
 ```bash
 docker compose up -d
@@ -248,10 +249,11 @@ metadata 用 MySQL 时同样需要传 `DATABASE_*`，用 SQLite 时必须和 web
 `MCP_JWT_SECRET` 是服务端的签名密钥，token 是用它签出来的凭证 —— 两者不能互换。
 把 token 填进 `MCP_JWT_SECRET`（或反过来）会让所有请求返回 `invalid_token`。
 
-密钥从环境变量读，避免占位符没替换就跑：
+密钥从环境变量读，避免占位符没替换就跑。用 compose 部署时直接从 `.env` 取，
+保证与运行中的服务用的是同一个值：
 
 ```bash
-export MCP_JWT_SECRET=$(openssl rand -base64 32)   # 与启动 MCP 服务时用的值必须一致
+export MCP_JWT_SECRET=$(grep '^MCP_JWT_SECRET=' .env | cut -d= -f2-)
 
 python3 <<'PY'
 import base64, hmac, hashlib, json, os, time

@@ -61,6 +61,16 @@ services:
     build: .
     restart: unless-stopped
     command: ["celery", "--app=superset.tasks.celery_app:app", "worker", "--loglevel=INFO"]
+    # 镜像内置的 HEALTHCHECK 是 curl web 端口，worker 不跑 web server，
+    # 沿用会永久 unhealthy；换成 celery 自身的 ping（要加载 superset app，故留足 start_period）
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - 'celery --app=superset.tasks.celery_app:app inspect ping -d "celery@$$(hostname)"'
+      interval: 60s
+      timeout: 30s
+      start_period: 120s
+      retries: 3
     environment:
       SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?required}
       DATABASE_HOST: db
@@ -82,7 +92,16 @@ services:
     image: maguowei/superset
     build: .
     restart: unless-stopped
-    command: ["celery", "--app=superset.tasks.celery_app:app", "beat", "--loglevel=INFO"]
+    # --schedule 必须显式指向可写路径：默认写到 WORKDIR（/app，root:root 0755），
+    # 容器以 uid 1000 运行，开 shelve 直接 Errno 13，且 celery 会误判成文件损坏反复重试
+    command:
+      - "celery"
+      - "--app=superset.tasks.celery_app:app"
+      - "beat"
+      - "--loglevel=INFO"
+      - "--schedule=/app/superset_home/celerybeat-schedule"
+    healthcheck:
+      disable: true
     environment:
       SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?required}
       DATABASE_HOST: db
@@ -104,6 +123,8 @@ services:
     build: .
     restart: unless-stopped
     command: ["superset", "mcp", "run", "--host", "0.0.0.0", "--port", "5008"]
+    healthcheck:
+      disable: true
     ports:
       - "${MCP_PORT:-5008}:5008"
     environment:
