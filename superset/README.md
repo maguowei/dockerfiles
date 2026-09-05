@@ -1,6 +1,6 @@
 # Superset
 
-基于 `apache/superset` 的定制镜像，预装 MySQL 驱动（mysqlclient + PyMySQL）并默认中文界面。
+基于 `apache/superset` 的定制镜像：预装 MySQL 驱动（mysqlclient + PyMySQL）、默认中文界面、内置 MCP 服务。
 
 ## 快速开始
 
@@ -63,17 +63,9 @@ cd superset
 cp .env.example .env
 ```
 
-模板里标了「必填」的四项必须填，缺任意一项 `docker compose up` 会直接报
-`required variable ... is missing a value`（compose 里用 `:?required` 强制）：
-
-| 变量 | 生成方式 |
-|------|----------|
-| SUPERSET_SECRET_KEY | `openssl rand -base64 42` |
-| MYSQL_ROOT_PASSWORD | `openssl rand -base64 24` |
-| DATABASE_PASSWORD | `openssl rand -base64 24` |
-| MCP_JWT_SECRET | `openssl rand -base64 32` |
-
-其余项（库名、用户名、宿主机端口、`MCP_DEV_USERNAME`、`SUPERSET_PUBLIC_URL`）都有默认值，
+模板里标了「必填」的四项（`SUPERSET_SECRET_KEY`、`MYSQL_ROOT_PASSWORD`、`DATABASE_PASSWORD`、
+`MCP_JWT_SECRET`）每项注释都附了 `openssl` 生成命令；缺任意一项 `docker compose up` 会直接报
+`required variable ... is missing a value`（compose 用 `:?required` 强制）。其余项都有默认值，
 按需取消注释覆盖即可。`.env` 含明文密码，已被 `.gitignore` 排除，不要提交到版本库。
 
 启动并初始化：
@@ -91,16 +83,16 @@ docker compose exec superset superset init
 `worker` 和 `beat` 两个服务用于 SQL Lab 异步查询、定时任务和告警报表。不需要这些功能可从
 compose 文件中删掉，Superset 本身不依赖它们。
 
-这三个非 web 服务的健康检查都在 compose 里做了调整，原因值得留意：
+worker/beat/mcp 三个非 web 服务在 compose 里都改了健康检查——镜像内置的 `HEALTHCHECK` 是
+curl web 端口，它们都不跑 web server，沿用会永久 unhealthy：
 
-- `worker` 换成 `celery inspect ping`。镜像内置的 `HEALTHCHECK` 是 curl web 端口，worker
-  不跑 web server，沿用会永久 unhealthy。ping 需要加载 superset app，故 `start_period` 留了 120s。
-- `beat` 和 `mcp` 直接 `healthcheck: disable: true`。beat 没有 worker 那样的 inspect 接口；
-  mcp 监听 5008 且只挂 `/mcp` 一条 streamable-http 路由、没有 `/health`，stateless 下
-  `GET /mcp` 恒回 405。两者崩了容器直接退出，`restart` 策略比假 healthy 更可靠。
-- `beat` 的 `--schedule` 必须显式指向 `/app/superset_home/`。默认写到 WORKDIR（`/app`，
-  root:root 0755），容器以 uid 1000 运行，开 shelve 直接 `Errno 13`，且 celery 会误判成
-  文件损坏反复重试。
+- `worker` 换成 `celery inspect ping`（做法见 compose 注释）。
+- `beat` 和 `mcp` 直接禁用：beat 没有 worker 那样的 inspect 接口，mcp 只挂 `/mcp` 一条
+  streamable-http 路由、stateless 下 `GET /mcp` 恒回 405，都没有可用的探活端点。两者崩了
+  容器直接退出，`restart` 策略比假 healthy 更可靠。
+
+`beat` 还必须把 `--schedule` 指到 `/app/superset_home/`（原因见 compose 注释），否则以
+uid 1000 运行时写默认 WORKDIR 会 `Errno 13`。
 
 ### 接入已有的 MySQL 与 Redis
 
@@ -412,29 +404,19 @@ Superset 6.1.0 的 MCP 实现有几处需要提前知道，否则容易误判：
 
 ## 注意事项
 
-- 默认用 SQLite 存 metadata 且不缓存查询结果，仅适合单容器场景；生产环境应改用 MySQL/PostgreSQL 与 Redis。
-- 上游运行环境为 `/app/.venv`，追加 Python 包需指定该解释器，否则会装进系统 Python 而不被 Superset 加载：
+- 追加 Python 包必须指定 `/app/.venv` 的解释器，否则会装进系统 Python 而不被 Superset 加载：
 
   ```dockerfile
   RUN uv pip install --no-cache --python /app/.venv/bin/python <package>
   ```
 
-- mysqlclient 在 PyPI 没有 Linux wheel，需源码编译。Dockerfile 临时安装 `build-essential`、
-  `default-libmysqlclient-dev`、`pkg-config` 编译后清理，但运行时共享库 `libmariadb3` 必须显式
-  `apt-mark manual` 保留，否则会被 `--auto-remove` 删掉，导致 `import MySQLdb` 报缺
-  `libmariadb.so.3`。
-
-- metadata 用 MySQL 时不要把 collation 设成 `utf8mb4_unicode_ci`，会导致列表页 500，
-  原因见上方[接入已有的 MySQL 与 Redis](#接入已有的-mysql-与-redis)。
-
-- `SQLALCHEMY_ENGINE_OPTIONS` 里的连接池参数只在 MySQL 模式下设置。SQLite 用 NullPool，
-  传 `pool_size` / `max_overflow` 会让 `create_engine` 抛 TypeError，容器无法启动。
-
 - 首次启动时 `superset db upgrade` 还没执行，日志会出现几条
   `Table 'superset.themes' doesn't exist`，属正常现象，建表完成后不再出现。
 
-- MCP 服务的执行身份由配置文件里的 `MCP_DEV_USERNAME` 决定，JWT 不做身份映射，
-  详见[限制](#限制)。
+- metadata 用 MySQL 时不要把 collation 设成 `utf8mb4_unicode_ci`，会导致列表页 500，
+  原因见[接入已有的 MySQL 与 Redis](#接入已有的-mysql-与-redis)。
+
+- MCP 服务的执行身份由配置文件里的 `MCP_DEV_USERNAME` 决定，JWT 不做身份映射，详见[限制](#限制)。
 
 ## 参考资料
 
