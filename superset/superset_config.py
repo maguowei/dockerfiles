@@ -1,5 +1,7 @@
 import os
 
+from superset.config import PREFERRED_DATABASES as _UPSTREAM_PREFERRED_DATABASES
+
 # ---------------------------------------------------
 # 语言配置：默认中文界面
 # ---------------------------------------------------
@@ -8,6 +10,15 @@ LANGUAGES = {
     "zh": {"flag": "cn", "name": "Chinese"},
 }
 BABEL_DEFAULT_LOCALE = "zh"
+
+# ---------------------------------------------------
+# 数据源：推荐引擎列表
+# ---------------------------------------------------
+# 上游默认只把 PostgreSQL / Presto / MySQL / SQLite 放进「添加数据库」的推荐图标区，
+# 其余引擎要在下拉里翻。本镜像预装了 clickhouse-connect，故把 ClickHouse 一并提上来。
+# 名字必须与 engine spec 的 engine_name 完全一致（ClickHouseConnectEngineSpec
+# 是 "ClickHouse"，"ClickHouse (sqlalchemy)" 是未预装驱动的 legacy spec，不要写它）。
+PREFERRED_DATABASES = [*_UPSTREAM_PREFERRED_DATABASES, "ClickHouse"]
 
 # ---------------------------------------------------
 # Metadata 数据库

@@ -2,7 +2,7 @@ ARG SUPERSET_VERSION=6.1.0
 FROM apache/superset:${SUPERSET_VERSION}
 LABEL maintainer="imaguowei@gmail.com"
 LABEL name="maguowei/superset"
-LABEL description="Apache Superset with MySQL driver and Chinese locale"
+LABEL description="Apache Superset with MySQL/ClickHouse drivers and Chinese locale"
 
 ARG SUPERSET_VERSION
 ENV SUPERSET_VERSION=${SUPERSET_VERSION}
@@ -31,6 +31,15 @@ RUN apt-get update \
 # 这里固定小版本保证构建可复现，升级用 --build-arg FASTMCP_VERSION= 覆盖。
 ARG FASTMCP_VERSION=3.4.7
 RUN uv pip install --no-cache --python /app/.venv/bin/python "fastmcp==${FASTMCP_VERSION}"
+
+# ClickHouse 驱动。clickhouse-connect 通过 entry point 注册 clickhousedb 方言，
+# Superset 的 ClickHouseConnectEngineSpec（engine=clickhousedb，default_driver=connect）
+# 据此判定引擎可用，装上即出现在 UI 数据库列表；有 manylinux/musllinux 的 amd64 与
+# aarch64 wheel，无需编译工具链。上游 [clickhouse] extra 约束为 >=0.13.0,<1.0，
+# 这里固定小版本保证构建可复现，升级用 --build-arg CLICKHOUSE_CONNECT_VERSION= 覆盖。
+ARG CLICKHOUSE_CONNECT_VERSION=0.15.1
+RUN uv pip install --no-cache --python /app/.venv/bin/python \
+        "clickhouse-connect==${CLICKHOUSE_CONNECT_VERSION}"
 
 # 默认中文界面配置，官方镜像已将 /app/pythonpath 加入 PYTHONPATH
 COPY superset_config.py /app/pythonpath/superset_config.py

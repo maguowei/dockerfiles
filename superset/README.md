@@ -1,6 +1,7 @@
 # Superset
 
-基于 `apache/superset` 的定制镜像：预装 MySQL 驱动（mysqlclient + PyMySQL）、默认中文界面、内置 MCP 服务。
+基于 `apache/superset` 的定制镜像：预装 MySQL 驱动（mysqlclient + PyMySQL）和 ClickHouse 驱动
+（clickhouse-connect）、默认中文界面、内置 MCP 服务。
 
 ## 快速开始
 
@@ -194,6 +195,32 @@ mysql+pymysql://user:password@host:3306/dbname    # PyMySQL，纯 Python 实现
 该 dialect 依赖 `MySQLdb` 模块。只装 PyMySQL 时它提供的是 `mysql+pymysql` dialect，
 不参与该检查，UI 的数据库列表就只会显示 PostgreSQL 和 SQLite。
 
+## 连接 ClickHouse 数据源
+
+镜像预装 `clickhouse-connect`，ClickHouse 会出现在添加数据库的推荐图标中，SQLAlchemy URI：
+
+```
+clickhousedb://user:password@host:8123/dbname                 # HTTP 接口，默认端口 8123
+clickhousedb://user:password@host:8443/dbname?secure=true     # HTTPS，ClickHouse Cloud 用 8443
+clickhousedb://localhost/default                              # 本地无认证
+```
+
+注意 scheme 是 `clickhousedb://`（`clickhouse-connect`），不是 `clickhouse://`。后者属于
+另一个驱动 `clickhouse-sqlalchemy`，本镜像未预装 —— UI 里那个名为 `ClickHouse (sqlalchemy)`
+的 legacy 引擎因此不可用，选它会报驱动缺失。上游从 5.0 起就把 `clickhouse-connect`
+标为推荐驱动。
+
+ClickHouse 默认不在上游的推荐图标区（`PREFERRED_DATABASES` 只含 PostgreSQL / Presto /
+MySQL / SQLite），本镜像的 `superset_config.py` 已把它追加进去，所以添加数据库时能直接点图标，
+不必在下拉列表里翻。挂载自己的配置文件覆盖时这段会失效，ClickHouse 仍可用，只是回到下拉列表里。
+
+时间粒度由上游 engine spec 直接映射成 ClickHouse 函数，例如按小时聚合会生成
+`toStartOfHour(toDateTime(col))`，无需额外配置。
+
+`clickhouse-connect` 不支持 Superset 的 CSV/Excel 文件上传（上游
+`ClickHouseEngineSpec.supports_file_upload = False`），需要导入文件请走 ClickHouse 自身的
+导入方式。
+
 ## AI 功能（MCP）
 
 Superset 5.0+ 内置 MCP（Model Context Protocol）服务，把 dashboard、chart、dataset 和 SQL Lab
@@ -373,6 +400,7 @@ Superset 6.1.0 的 MCP 实现有几处需要提前知道，否则容易误判：
 |------|--------|------|
 | SUPERSET_VERSION | 6.1.0 | 上游 `apache/superset` 版本 |
 | FASTMCP_VERSION | 3.4.7 | MCP 服务依赖，上游约束为 `>=3.1.0,<4.0` |
+| CLICKHOUSE_CONNECT_VERSION | 0.15.1 | ClickHouse 驱动，上游约束为 `>=0.13.0,<1.0` |
 
 ### 环境变量
 
@@ -396,7 +424,7 @@ Superset 6.1.0 的 MCP 实现有几处需要提前知道，否则容易误判：
 
 ### 自定义配置
 
-`superset_config.py` 复制到镜像的 `/app/pythonpath/`（官方镜像已将该目录加入 `PYTHONPATH`），当前设置默认语言为中文。需要覆盖时可挂载自己的配置文件：
+`superset_config.py` 复制到镜像的 `/app/pythonpath/`（官方镜像已将该目录加入 `PYTHONPATH`），当前设置默认语言为中文、并把 ClickHouse 追加到推荐引擎列表。需要覆盖时可挂载自己的配置文件：
 
 ```bash
 -v $(pwd)/superset_config.py:/app/pythonpath/superset_config.py
@@ -417,6 +445,9 @@ Superset 6.1.0 的 MCP 实现有几处需要提前知道，否则容易误判：
   原因见[接入已有的 MySQL 与 Redis](#接入已有的-mysql-与-redis)。
 
 - MCP 服务的执行身份由配置文件里的 `MCP_DEV_USERNAME` 决定，JWT 不做身份映射，详见[限制](#限制)。
+
+- ClickHouse 的连接串用 `clickhousedb://`，不是 `clickhouse://`，详见
+  [连接 ClickHouse 数据源](#连接-clickhouse-数据源)。
 
 ## 参考资料
 
