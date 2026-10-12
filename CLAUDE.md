@@ -13,7 +13,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **base**: Ubuntu 24.04 基础镜像,预装中文环境、常用工具和 Python 3.12
 - **go**: Go 语言相关镜像,包含显式复用的 `builder`(构建基础镜像)和 `app`(运行时基础镜像)两个子目录
 - **python**: Python 相关镜像集合，包含 `base`（基础层：Python 3.14 + uv）和 `app`（ONBUILD 应用模板）两个子目录
-- **frp**: 内网穿透工具 frp 的镜像
 - **surge-snell**: Surge Snell 代理协议镜像
 - **v2ray**: V2Ray 代理工具镜像
 - **elasticsearch**: Elasticsearch 搜索引擎镜像
@@ -46,7 +45,6 @@ make build-python       # Python 基础镜像（maguowei/python）
 make build-python-app   # Python 应用镜像（maguowei/python:onbuild）
 
 # 构建其他服务镜像
-make build-frp          # FRP 内网穿透
 make build-surge-snell  # Surge Snell 代理
 make build-v2ray        # V2Ray 代理
 make build-elasticsearch # Elasticsearch 搜索引擎
@@ -54,7 +52,7 @@ make build-litellm       # LiteLLM API 代理
 make build-code          # 代码开发环境
 ```
 
-注意:部分镜像(如 frp、surge-snell)使用 `--platform=linux/amd64` 参数构建特定平台镜像。
+注意:部分镜像(如 surge-snell)使用 `--platform=linux/amd64` 参数构建特定平台镜像。
 
 推送镜像到 Docker Hub:
 
@@ -149,6 +147,6 @@ base 镜像预配置:
 - `ci`: CI/CD 配置更新
 
 示例:
-- `chore: upgrade frp 0.63.0`
+- `chore: upgrade elasticsearch 8.19.0`
 - `feat: add elasticsearch image`
 - `ci: update github actions to v3`

@@ -19,9 +19,6 @@ build-surge-snell:
 build-v2ray:
 	docker build -t maguowei/v2ray v2ray
 
-build-frp:
-	docker build --platform=linux/amd64 -t maguowei/frp frp
-
 build-elasticsearch:
 	docker build -t maguowei/elasticsearch elasticsearch
 
