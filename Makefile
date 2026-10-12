@@ -28,8 +28,5 @@ build-elasticsearch:
 build-litellm:
 	docker build -t maguowei/litellm litellm
 
-build-superset:
-	docker build -t maguowei/superset superset
-
 build-code:
 	docker build -t maguowei/code code
