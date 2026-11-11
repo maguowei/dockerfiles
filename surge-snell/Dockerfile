@@ -1,9 +1,13 @@
 FROM debian:13-slim AS downloader
 ARG TARGETARCH
-ENV SNELL_VERSION=v5.0.1
+ENV SNELL_VERSION=v6.0.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget unzip \
-    && if [ "${TARGETARCH}" = "amd64" ]; then ARCH=amd64; else ARCH=aarch64; fi \
+    && case "${TARGETARCH}" in \
+         amd64) ARCH=amd64 ;; \
+         arm64) ARCH=aarch64 ;; \
+         *) echo "Unsupported architecture: ${TARGETARCH}" >&2; exit 1 ;; \
+       esac \
     && wget -O /tmp/snell.zip "https://dl.nssurge.com/snell/snell-server-${SNELL_VERSION}-linux-${ARCH}.zip" \
     && unzip /tmp/snell.zip -d /tmp \
     && chmod +x /tmp/snell-server
